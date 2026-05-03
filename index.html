@@ -179,7 +179,7 @@
 </head>
 <body>
 
-<div class="version-tag">v1.8.0</div>
+<div class="version-tag">v1.9.0</div>
 
 <div class="modal-overlay" id="devPasswordModal">
     <div class="modal-content" style="max-width: 350px; text-align: center; border-top: 6px solid #e74c3c;">
@@ -221,11 +221,11 @@
     <div class="modal-content">
         <h3>🚀 Release Notes</h3>
         <div class="version-block">
-            <h4>v1.8.0 - The Smart Fallback Update</h4>
+            <h4>v1.9.0 - The Mega Bundle Update</h4>
             <p style="color: #555; font-size: 0.9em; margin-top: -5px;">Update by Reece:</p>
             <ul>
-                <li><strong>Local File Fallback:</strong> Desktop browsers strictly block local files from fetching external data. The Deals Engine now detects if Firefox is shadow-blocking the connection. If the Google Sheet doesn't load within 3 seconds, the app will instantly generate dummy "Test Deals" so you can continue testing the UI locally without it freezing!</li>
-                <li><strong>Lightning Fast Fetch:</strong> Reverted to the fastest, native Google direct-fetch endpoint. It takes less than 0.2 seconds to load when deployed to the shop floor.</li>
+                <li><strong>Mega Bundle Engine:</strong> Expanded the Deals database integration. You can now build massive bundle pitches. The app natively reads Columns O through U to pull through Game Console pricing, Addline Handset pricing, and a custom breakdown field. If you don't need them for a specific deal, leave them blank and the app hides them perfectly.</li>
+                <li><strong>Local File Fallback:</strong> If desktop browsers strictly block the connection, the Deals Engine detects this, stops spinning, and loads local test data to allow UI testing.</li>
             </ul>
         </div>
         <button class="modal-btn" onclick="closeChangelog()">Amazing, thanks!</button>
@@ -349,7 +349,7 @@
 </div>
 
 <script>
-    const APP_VERSION = "1.8.0";
+    const APP_VERSION = "1.9.0";
 
     const defaultCategories = [
         { name: "NEW HANDSETS", target: 0, achieved: 0 },
@@ -373,7 +373,7 @@
 
     let simulatedDateOffset = parseInt(localStorage.getItem('eeRhylSimOffset')) || 0;
     
-    // --- HOT DEALS ENGINE (TIMEOUT FALLBACK PATCH) ---
+    // --- HOT DEALS ENGINE ---
     let dealsData = [];
     let dealCategories = [];
     let currentCategory = '';
@@ -390,20 +390,25 @@
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3500); 
 
+        // Uses proxy on desktop to bypass CORS & Firefox tracking protection redirects
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(PUBLISHED_CSV_URL)}`;
+        
         try {
-            // We append a random number to the URL to bypass Google's aggressive caching
-            const res = await fetch(PUBLISHED_CSV_URL + '&_buster=' + Date.now(), { 
+            const res = await fetch(proxyUrl, { 
                 signal: controller.signal,
                 cache: "no-store" 
             });
             clearTimeout(timeoutId);
             
             if (!res.ok) throw new Error("Network response was not ok");
-            const text = await res.text();
-            processDealsCSV(text);
+            const data = await res.json();
             
+            if (data && data.contents) {
+                processDealsCSV(data.contents);
+            } else {
+                throw new Error("Empty spreadsheet or invalid data.");
+            }
         } catch (e) {
-            // If the browser kills the connection (because it's a local file), we load test data
             console.log("Fetch blocked or timed out. Loading local fallback data.");
             loadLocalTestData();
         }
@@ -412,11 +417,11 @@
     function loadLocalTestData() {
         const container = document.getElementById('dealsContainer');
         
-        // This is pure, static test data that allows you to work on the app locally
-        const testCSV = `Category,Headline,Tagline,Total Monthly,Upfront,Item 1 Name,Item 1 Term,Item 1 Price,Item 1 Total,Airtime Plan,Airtime Monthly,2nd Device Name,2nd Device Term,2nd Device Monthly
-Samsung,Samsung S24 Ultra Bundle,The ultimate pro setup.,£85.00,£30.00,Galaxy S24 Ultra,36 Months,£45.00,£1620,Unlimited Data,£20.00,Galaxy Watch 6,24 Months,£20.00
-Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro Max,36 Months,£48.00,£1728,100GB Data,£22.00,,,
-Broadband,Full Fibre 900 + Apple TV,Ultimate home streaming.,£55.00,£0.00,Apple TV 4K,24 Months,£15.00,,Home Broadband,£40.00,,,`;
+        // Extended Static test data ensuring all 21 columns are represented
+        const testCSV = `Category,Headline,Tagline,Total Monthly,Upfront,Item 1 Name,Item 1 Term,Item 1 Price,Item 1 Total,Airtime Plan,Airtime Monthly,2nd Device Name,2nd Device Term,2nd Device Monthly,Console Name,Console Term,Console Monthly,Addline Name,Addline Term,Addline Monthly,Addline Breakdown
+Samsung,Samsung S24 Ultra Bundle,The ultimate pro setup.,£125.00,£30.00,Galaxy S24 Ultra,36 Months,£45.00,£1620,Unlimited Data,£20.00,Galaxy Watch 6,24 Months,£20.00,PS5 Slim,11 Months,£15.00,Galaxy A54,24 Months,£25.00,Includes 10GB Data
+Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro Max,36 Months,£48.00,£1728,100GB Data,£22.00,,,,,,,,,,,
+Broadband,Full Fibre 900 + Xbox,Ultimate home streaming.,£70.00,£0.00,Apple TV 4K,24 Months,£15.00,,Home Broadband,£40.00,,,,Xbox Series X,11 Months,£15.00,,,,`;
         
         if(container) {
             container.innerHTML = `
@@ -478,7 +483,14 @@ Broadband,Full Fibre 900 + Apple TV,Ultimate home streaming.,£55.00,£0.00,Appl
                 airtimePrice: row[10] || '',
                 d2Name: row[11] || '',
                 d2Term: row[12] || '',
-                d2Price: row[13] || ''
+                d2Price: row[13] || '',
+                gcName: row[14] || '',
+                gcTerm: row[15] || '',
+                gcPrice: row[16] || '',
+                alName: row[17] || '',
+                alTerm: row[18] || '',
+                alPrice: row[19] || '',
+                alBreakdown: row[20] || ''
             });
         }
         
@@ -534,6 +546,18 @@ Broadband,Full Fibre 900 + Apple TV,Ultimate home streaming.,£55.00,£0.00,Appl
                     <div class="breakdown-row">
                         <span class="breakdown-label">⌚ Add-on<span class="breakdown-sub">${deal.d2Name} ${deal.d2Term ? '('+deal.d2Term+')' : ''}</span></span>
                         <span class="breakdown-val">${deal.d2Price}</span>
+                    </div>` : ''}
+                    
+                    ${deal.gcName ? `
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">🎮 Game Console<span class="breakdown-sub">${deal.gcName} ${deal.gcTerm ? '('+deal.gcTerm+')' : ''}</span></span>
+                        <span class="breakdown-val">${deal.gcPrice}</span>
+                    </div>` : ''}
+                    
+                    ${deal.alName ? `
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">📦 Addline Handset<span class="breakdown-sub">${deal.alName} ${deal.alTerm ? '('+deal.alTerm+')' : ''}</span></span>
+                        <span class="breakdown-val">${deal.alPrice}${deal.alBreakdown ? '<span class="breakdown-sub">'+deal.alBreakdown+'</span>' : ''}</span>
                     </div>` : ''}
                 </div>
             </div>`;
