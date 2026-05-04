@@ -179,7 +179,7 @@
 </head>
 <body>
 
-<div class="version-tag">v1.9.1</div>
+<div class="version-tag">v1.9.0</div>
 
 <div class="modal-overlay" id="devPasswordModal">
     <div class="modal-content" style="max-width: 350px; text-align: center; border-top: 6px solid #e74c3c;">
@@ -221,11 +221,11 @@
     <div class="modal-content">
         <h3>🚀 Release Notes</h3>
         <div class="version-block">
-            <h4>v1.9.1 - The Production Live Patch</h4>
+            <h4>v1.9.0 - The Holiday Mode Update</h4>
             <p style="color: #555; font-size: 0.9em; margin-top: -5px;">Update by Reece:</p>
             <ul>
-                <li><strong>Removed Dummy Data Fallback:</strong> Now that the app is properly hosted on an alpha site, the aggressive timeout that was triggering the local dummy data has been completely stripped out. The app will now <i>only</i> load your real data directly from the Google Sheet.</li>
-                <li><strong>Mega Bundle Engine:</strong> Expanded the Deals database integration. You can build massive bundle pitches. The app natively reads Columns O through U to pull through Game Console pricing, Addline Handset pricing, and custom breakdowns.</li>
+                <li><strong>Auto-Expiring Deals (Holiday Mode):</strong> Column Q in your spreadsheet is now a "Valid Until" column. Enter a date (YYYY-MM-DD), and if you go on holiday and forget to delete the row, the app will automatically hide the deal from the store floor once that date passes!</li>
+                <li><strong>Expanded Deal Cards:</strong> The receipt breakdown now natively reads 16 full columns, adding the ability to display "🎮 Game Consoles" and "📦 Extra Handsets" inside the bundle breakdowns.</li>
             </ul>
         </div>
         <button class="modal-btn" onclick="closeChangelog()">Amazing, thanks!</button>
@@ -349,7 +349,7 @@
 </div>
 
 <script>
-    const APP_VERSION = "1.9.1";
+    const APP_VERSION = "1.9.0";
 
     const defaultCategories = [
         { name: "NEW HANDSETS", target: 0, achieved: 0 },
@@ -373,7 +373,7 @@
 
     let simulatedDateOffset = parseInt(localStorage.getItem('eeRhylSimOffset')) || 0;
     
-    // --- HOT DEALS ENGINE (PRODUCTION LIVE PATCH) ---
+    // --- HOT DEALS ENGINE (HOLIDAY MODE + 16 COLUMNS) ---
     let dealsData = [];
     let dealCategories = [];
     let currentCategory = '';
@@ -384,33 +384,44 @@
         const modal = document.getElementById('dealsModal');
         if(modal) modal.style.display = 'flex';
         const container = document.getElementById('dealsContainer');
+        
         if(container) container.innerHTML = '<div style="text-align: center; color: #777; padding: 20px;">Fetching live deals from HQ... 🔄</div>';
         
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500); 
+
         try {
-            // Fast, direct fetch to Google using a cache buster
-            const res = await fetch(PUBLISHED_CSV_URL + '&_buster=' + Date.now(), { cache: "no-store" });
+            const res = await fetch(PUBLISHED_CSV_URL + '&_buster=' + Date.now(), { 
+                signal: controller.signal,
+                cache: "no-store" 
+            });
+            clearTimeout(timeoutId);
+            
             if (!res.ok) throw new Error("Network response was not ok");
             const text = await res.text();
             processDealsCSV(text);
             
         } catch (e) {
-            // If the direct fetch fails (usually due to a strict CORS policy on the host server), 
-            // it seamlessly falls back to the secure proxy.
-            try {
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(PUBLISHED_CSV_URL + '&_buster=' + Date.now())}`;
-                const resProxy = await fetch(proxyUrl, { cache: "no-store" });
-                if (!resProxy.ok) throw new Error("Proxy response was not ok");
-                const data = await resProxy.json();
-                
-                if (data && data.contents) {
-                    processDealsCSV(data.contents);
-                } else {
-                    throw new Error("Empty spreadsheet or invalid data.");
-                }
-            } catch (proxyError) {
-                if(container) container.innerHTML = `<div style="text-align: center; color: #e74c3c; padding: 20px;">❌ Connection Failed.<br><br><span style="font-size: 0.85em; color: #555;">Could not connect to the Google Sheet. Please check the spreadsheet link.</span><br><br><span style="font-size: 0.6em; color: #ccc;">Error: ${proxyError.message}</span></div>`;
-            }
+            console.log("Fetch blocked or timed out. Loading local fallback data.");
+            loadLocalTestData();
         }
+    }
+
+    function loadLocalTestData() {
+        const container = document.getElementById('dealsContainer');
+        const testCSV = `Category,Headline,Tagline,Total Monthly,Upfront,Item 1 Name,Item 1 Term,Item 1 Price,Item 1 Total,Airtime Plan,Airtime Monthly,2nd Device Name,2nd Device Term,2nd Device Monthly,Console Name,Extra Handset Name,Valid Until
+Samsung,Samsung S24 Ultra Bundle,The ultimate pro setup.,£85.00,£30.00,Galaxy S24 Ultra,36 Months,£45.00,£1620,Unlimited Data,£20.00,Galaxy Watch 6,24 Months,£20.00,,,
+Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro Max,36 Months,£48.00,£1728,100GB Data,£22.00,,,,,
+Broadband,Full Fibre 900 + PS5,Ultimate home bundle.,£60.00,£0.00,Smart Hub Plus,,£0.00,,Home Broadband,£40.00,,,,PS5 Digital,,`;
+        
+        if(container) {
+            container.innerHTML = `
+                <div style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 6px; font-size: 0.85em; text-align: center; margin-bottom: 15px; border: 1px solid #ffeeba;">
+                    ⚠️ <strong>LOCAL MODE:</strong> Desktop browser blocked live fetch. Showing local test deals.
+                </div>
+            `;
+        }
+        processDealsCSV(testCSV, true);
     }
 
     function closeDealsModal() {
@@ -436,15 +447,32 @@
         return arr;
     }
 
-    function processDealsCSV(csvText) {
+    function processDealsCSV(csvText, isFallback = false) {
         const rows = parseCSV(csvText);
         dealsData = [];
         dealCategories = [];
+        
+        // Get today's real date, plus whatever simulated offset you are testing
+        let currentAppDate = new Date();
+        currentAppDate.setDate(currentAppDate.getDate() + simulatedDateOffset);
+        // Reset to midnight so we are only comparing calendar days
+        currentAppDate.setHours(0, 0, 0, 0); 
         
         for (let i = 1; i < rows.length; i++) {
             const row = rows[i];
             if (!row || row.length < 2 || !row[0].trim()) continue; 
             
+            // --- HOLIDAY MODE EXPIRATION CHECK ---
+            // Column Q is index 16
+            let expiryStr = row[16] ? row[16].trim() : '';
+            if (expiryStr) {
+                let expiryDate = new Date(expiryStr);
+                // If it's a valid date and the current app date is strictly greater than it
+                if (!isNaN(expiryDate) && currentAppDate > expiryDate) {
+                    continue; // Skip this deal completely, it has expired!
+                }
+            }
+
             let cat = row[0].trim();
             if (!dealCategories.includes(cat)) dealCategories.push(cat);
             
@@ -463,28 +491,26 @@
                 d2Name: row[11] || '',
                 d2Term: row[12] || '',
                 d2Price: row[13] || '',
-                gcName: row[14] || '',
-                gcTerm: row[15] || '',
-                gcPrice: row[16] || '',
-                alName: row[17] || '',
-                alTerm: row[18] || '',
-                alPrice: row[19] || '',
-                alBreakdown: row[20] || ''
+                consoleName: row[14] || '',
+                extraHandsetName: row[15] || ''
             });
         }
         
         if (dealCategories.length > 0) {
-            currentCategory = dealCategories[0];
-            renderDealsUI();
+            // Check if the current category still exists (in case all deals in it expired)
+            if (!dealCategories.includes(currentCategory)) {
+                currentCategory = dealCategories[0];
+            }
+            renderDealsUI(isFallback);
         } else {
             let container = document.getElementById('dealsContainer');
-            if(container) container.innerHTML = '<div style="text-align: center; color: #777; padding: 20px;">No deals found. Add some rows to your Google Sheet!</div>';
+            if(container) container.innerHTML = '<div style="text-align: center; color: #777; padding: 20px;">No deals found. Check your sheet or expiration dates!</div>';
             let tabs = document.getElementById('dealsTabs');
             if(tabs) tabs.innerHTML = '';
         }
     }
 
-    function renderDealsUI() {
+    function renderDealsUI(isFallback = false) {
         let tabsHtml = '';
         dealCategories.forEach(cat => {
             tabsHtml += `<div class="deal-tab ${cat === currentCategory ? 'active' : ''}" onclick="switchDealTab('${cat.replace(/'/g, "\\'")}')">${cat}</div>`;
@@ -526,24 +552,33 @@
                         <span class="breakdown-label">⌚ Add-on<span class="breakdown-sub">${deal.d2Name} ${deal.d2Term ? '('+deal.d2Term+')' : ''}</span></span>
                         <span class="breakdown-val">${deal.d2Price}</span>
                     </div>` : ''}
-                    
-                    ${deal.gcName ? `
+
+                    ${deal.consoleName ? `
                     <div class="breakdown-row">
-                        <span class="breakdown-label">🎮 Game Console<span class="breakdown-sub">${deal.gcName} ${deal.gcTerm ? '('+deal.gcTerm+')' : ''}</span></span>
-                        <span class="breakdown-val">${deal.gcPrice}</span>
+                        <span class="breakdown-label">🎮 Game Console<span class="breakdown-sub">${deal.consoleName}</span></span>
+                        <span class="breakdown-val"></span>
                     </div>` : ''}
-                    
-                    ${deal.alName ? `
+
+                    ${deal.extraHandsetName ? `
                     <div class="breakdown-row">
-                        <span class="breakdown-label">📦 Addline Handset<span class="breakdown-sub">${deal.alName} ${deal.alTerm ? '('+deal.alTerm+')' : ''}</span></span>
-                        <span class="breakdown-val">${deal.alPrice}${deal.alBreakdown ? '<span class="breakdown-sub">'+deal.alBreakdown+'</span>' : ''}</span>
+                        <span class="breakdown-label">📦 Extra Handset<span class="breakdown-sub">${deal.extraHandsetName}</span></span>
+                        <span class="breakdown-val"></span>
                     </div>` : ''}
                 </div>
             </div>`;
         });
         
         let dc = document.getElementById('dealsContainer');
-        if(dc) dc.innerHTML = dealsHtml;
+        if(dc) {
+            if(isFallback && !dc.innerHTML.includes('LOCAL MODE')) {
+                dc.innerHTML = `
+                <div style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 6px; font-size: 0.85em; text-align: center; margin-bottom: 15px; border: 1px solid #ffeeba;">
+                    ⚠️ <strong>LOCAL MODE:</strong> Desktop browser blocked live fetch. Showing local test deals.
+                </div>` + dealsHtml;
+            } else {
+                dc.innerHTML = dealsHtml;
+            }
+        }
     }
 
     function switchDealTab(cat) {
