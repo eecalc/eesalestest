@@ -1,6 +1,5 @@
 <script>
     const APP_VERSION = "3.0.5";
-
     const defaultCategories = [
         { name: "NEW HANDSETS", target: 0, achieved: 0 },
         { name: "UPGRADES", target: 0, achieved: 0 },
@@ -10,7 +9,7 @@
         { name: "TV", target: 0, achieved: 0 }
     ];
     const defaultPacing = { completed: 0, total: 0, lastUpdate: "", monthLocked: false };
-
+    
     let categories = JSON.parse(localStorage.getItem('eeRhylTargets')) || JSON.parse(JSON.stringify(defaultCategories));
     let pacingData = JSON.parse(localStorage.getItem('eeRhylPacing')) || JSON.parse(JSON.stringify(defaultPacing));
     let previousKPIs = JSON.parse(localStorage.getItem('eeRhylPrevKPIs')) || [0,0,0,0,0,0];
@@ -21,11 +20,9 @@
     let isCoachMinimized = localStorage.getItem('eeRhylCoachMinimized') === 'true';
     let displayedCurrentOverall = 0;
 
-    let simulatedDateOffset = parseInt(localStorage.getItem('eeRhylSimOffset')) || 0;
+    let scorecardUpdateQueue = {};
+    let scorecardUpdateTimer = null;
 
-    // --- SCORECARD ENGINE ---
-    const scColorMap = { "Red": "#e74c3c", "Amber": "#f39c12", "Green": "#27ae60", "Blue": "#3498db" };
-    
     // Map Personal Calculator KPIs to Scorecard KPIs
     const kpiMapping = {
         "NEW HANDSETS": "NEW H/S",
@@ -36,8 +33,7 @@
         "TV": "TV"
     };
 
-    let scorecardUpdateQueue = {};
-    let scorecardUpdateTimer = null;
+    const scColorMap = { "Red": "#e74c3c", "Amber": "#f39c12", "Green": "#27ae60", "Blue": "#3498db" };
 
     function fetchScorecard() {
         if (!SCORECARD_URL || SCORECARD_URL === "YOUR_SCRIPT_URL_HERE") return;
@@ -56,7 +52,6 @@
         }
 
         let overallEl = document.getElementById('sc-overall-score');
-        
         let scoreVal = parseFloat(data.overallScore);
         overallEl.innerText = isNaN(scoreVal) ? data.overallScore : scoreVal.toFixed(2);
         
@@ -74,7 +69,6 @@
             let remGreen = kpi.needGreen - sold;
             let remBlue = kpi.needBlue - sold;
 
-            // Smart Staircase Upgrade Logic
             let displayColor = kpi.color;
             if (kpi.color === "Red" && remAmber <= 0) displayColor = "Amber";
             if ((displayColor === "Red" || displayColor === "Amber") && remGreen <= 0) displayColor = "Green";
@@ -85,11 +79,10 @@
             gridHtml += `<div class="kpi-badge" style="border-top-color: ${topBorder}">
                 <span class="kpi-name">${kpi.name}</span>`;
             
-            // Only show numbers if it's NOT an NPS/COMPL/SR purely tracked item.
             let isTrackOnly = (kpi.needAmber===0 && kpi.needGreen===0 && kpi.needBlue===0);
-            
+
             if (isTrackOnly) {
-                gridHtml += `<div class="kpi-target" style="font-weight:bold; color:${topBorder}; font-size:1em; margin-top:5px;">${displayColor}</div>`;
+                 gridHtml += `<div class="kpi-target" style="font-weight:bold; color:${topBorder}; font-size:1em; margin-top:5px;">${displayColor}</div>`;
             } else if (displayColor === "Blue") {
                 gridHtml += `<div class="kpi-blue-win">Keep going to keep this blue! 🟦</div>`;
             } else if (displayColor === "Green") {
@@ -117,7 +110,6 @@
         document.getElementById('sc-last-sync').innerText = "Queuing sale...";
         
         clearTimeout(scorecardUpdateTimer);
-        // Wait 1 second before flushing to catch rapid multi-clicks
         scorecardUpdateTimer = setTimeout(() => {
             flushScorecardUpdates();
         }, 1000); 
@@ -137,20 +129,16 @@
         
         chain.then(() => {
             document.getElementById('sc-last-sync').innerText = "Waiting for HQ Math...";
-            // Rapid Polling: Check Google Sheets at 2s, 5s, and 9s to catch the instant the formula recalculates
             setTimeout(fetchScorecard, 2000);
             setTimeout(fetchScorecard, 5000);
             setTimeout(fetchScorecard, 9000);
         }).catch(e => console.log(e));
     }
 
-    // Polling heartbeat
-    setInterval(fetchScorecard, 60000); // 60 seconds
-    setTimeout(fetchScorecard, 1000); // Initial fetch
-    // --- END SCORECARD ENGINE ---
+    setInterval(fetchScorecard, 60000);
+    setTimeout(fetchScorecard, 1000);
 
-    
-    // --- HOT DEALS ENGINE ---
+    // --- DEALS ENGINE ---
     let dealsData = [];
     let dealCategories = [];
     let currentCategory = '';
@@ -185,8 +173,9 @@
     function loadLocalTestData() {
         const container = document.getElementById('dealsContainer');
         const testCSV = `Category,Headline,Tagline,Total Monthly,Upfront,Device Name,Device Term,Device Monthly,Total Device Cost,Airtime Plan,Airtime Monthly,2nd Device Name,2nd Device Term,2nd Device Monthly,Console Name,Console Term,Console Monthly,Addline Name,Addline Term,Addline Monthly,Addline Details,Valid until
-Samsung,Samsung S26 Ultra Bundle,Ends soon!,£76.40,£20.00,Samsung S26 Ultra 256GB,36M,£39.40,£1349.00,Essentials,£25.00,,,,Nintendo Switch lite,24M,£12.00,testr,136,12,test,
-Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro Max,36M,£48.00,£1728,100GB Data,£22.00,,,,,,,,,,`;
+Samsung,Samsung S24 Ultra Bundle,The ultimate pro setup.,£85.00,£30.00,Galaxy S24 Ultra,36 Months,£45.00,£1620,Unlimited Data,£20.00,Galaxy Watch 6,24 Months,£20.00,,,
+Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro Max,36 Months,£48.00,£1728,100GB Data,£22.00,,,,,,,,,,
+Broadband,Full Fibre 900 + PS5,Ultimate home bundle.,£60.00,£0.00,Smart Hub Plus,,£0.00,,Home Broadband,£40.00,,,,PS5 Digital,,`;
         
         if(container) {
             container.innerHTML = `
@@ -249,7 +238,7 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
         dealCategories = [];
         
         let currentAppDate = new Date();
-        currentAppDate.setDate(currentAppDate.getDate() + simulatedDateOffset);
+        currentAppDate.setDate(currentAppDate.getDate() + (parseInt(localStorage.getItem('eeRhylSimOffset')) || 0));
         currentAppDate.setHours(0, 0, 0, 0); 
         
         for (let i = 1; i < rows.length; i++) {
@@ -377,7 +366,11 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
         }
     }
 
-    function switchDealTab(cat) { currentCategory = cat; renderDealsUI(); }
+    function switchDealTab(cat) { 
+        currentCategory = cat; 
+        renderDealsUI(); 
+    }
+
     function toggleDeal(idx) {
         const card = document.getElementById(`deal-card-${idx}`);
         const details = document.getElementById(`deal-details-${idx}`);
@@ -393,11 +386,12 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
 
     function getTodayStr() {
         let d = new Date();
-        d.setDate(d.getDate() + simulatedDateOffset);
+        d.setDate(d.getDate() + (parseInt(localStorage.getItem('eeRhylSimOffset')) || 0));
         return d.toISOString().split('T')[0];
     }
 
     function simulateNextDay() {
+        let simulatedDateOffset = parseInt(localStorage.getItem('eeRhylSimOffset')) || 0;
         simulatedDateOffset += 1;
         localStorage.setItem('eeRhylSimOffset', simulatedDateOffset);
         isDevMode = false;
@@ -429,7 +423,6 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
         if(isDevMode) {
             if(confirm("Disable Developer Mode?")) {
                 isDevMode = false;
-                simulatedDateOffset = 0; 
                 localStorage.removeItem('eeRhylSimOffset');
                 localStorage.removeItem('eeRhylDevMode');
                 alert("Developer Mode Disabled.");
@@ -477,8 +470,15 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
         isSetupMode = !isSetupMode;
         let btn = document.getElementById('setupModeBtn');
         if (btn) {
-            if(isSetupMode) { btn.innerHTML = "✅ Save & Activate Coach"; btn.style.backgroundColor = "#27ae60"; } 
-            else { btn.innerHTML = "🛠️ Enable Setup Mode"; btn.style.backgroundColor = "#f39c12"; isInitial = true; localStorage.removeItem('eeRhylCoachPicks'); }
+            if(isSetupMode) { 
+                btn.innerHTML = "✅ Save & Activate Coach"; 
+                btn.style.backgroundColor = "#27ae60"; 
+            } else { 
+                btn.innerHTML = "🛠️ Enable Setup Mode"; 
+                btn.style.backgroundColor = "#f39c12"; 
+                isInitial = true; 
+                localStorage.removeItem('eeRhylCoachPicks'); 
+            }
         }
         calculate();
     }
@@ -490,7 +490,10 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
     }
 
     function lockMonth() {
-        if (pacingData.total <= 0) { alert("Please enter your Total Shifts for the month before locking."); return; }
+        if (pacingData.total <= 0) { 
+            alert("Please enter your Total Shifts for the month before locking."); 
+            return; 
+        }
         if (confirm("Are you sure this is correct? You won't be able to adjust targets or total shifts without developer access.")) {
             pacingData.monthLocked = true;
             pacingData.lastUpdate = getTodayStr(); 
@@ -572,8 +575,11 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
 
         if (!shiftInput) return false; 
 
-        if (!isDevMode) { if (minusBtn) minusBtn.style.display = 'none'; } 
-        else { if (minusBtn) minusBtn.style.display = 'inline-block'; }
+        if (!isDevMode) { 
+            if (minusBtn) minusBtn.style.display = 'none'; 
+        } else { 
+            if (minusBtn) minusBtn.style.display = 'inline-block'; 
+        }
 
         if (!pacingData.monthLocked || isSetupMode) {
             if (shiftAlert) shiftAlert.style.display = 'none';
@@ -632,6 +638,7 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
         categories[i][f] = Math.max(0, (categories[i][f] || 0) + c); 
         let aInput = document.getElementById(`achieved-in-${i}`);
         let tInput = document.getElementById(`target-in-${i}`);
+        
         if (f === 'achieved' && aInput) { aInput.value = categories[i][f]; } 
         else if (f === 'target' && tInput) { tInput.value = categories[i][f]; }
         
@@ -650,7 +657,12 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
         updateData(i, f, categories[i][f]); 
     }
     
-    function updateData(i, f, v) { categories[i][f] = parseFloat(v) || 0; localStorage.setItem('eeRhylTargets', JSON.stringify(categories)); calculate(); }
+    function updateData(i, f, v) { 
+        categories[i][f] = parseFloat(v) || 0; 
+        localStorage.setItem('eeRhylTargets', JSON.stringify(categories)); 
+        calculate(); 
+    }
+
     function getKPIColor(p) { return p < 50 ? '#e74c3c' : p < 100 ? '#f39c12' : p < 125 ? '#27ae60' : '#2980b9'; }
     function getOverallColor(p) { return p < 50 ? '#e74c3c' : p < 75 ? '#f39c12' : p < 125 ? '#27ae60' : '#2980b9'; }
     
@@ -779,6 +791,7 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
              let tInput = document.getElementById(`target-in-${i}`);
              let tMinus = document.getElementById(`target-minus-${i}`);
              let tPlus = document.getElementById(`target-plus-${i}`);
+             
              if(tInput) tInput.disabled = isTargetsLocked;
              if(tMinus) tMinus.style.display = isTargetsLocked ? 'none' : 'inline-block';
              if(tPlus) tPlus.style.display = isTargetsLocked ? 'none' : 'inline-block';
@@ -1406,7 +1419,11 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
                 let isComplete = true;
                 if(items.length === 0) isComplete = false;
                 for(let k=0; k<items.length; k++){ if(!items[k].classList.contains('crossed-off')) isComplete = false; }
-                if(isComplete) currentCompletedBoxes++;
+                if(isComplete) {
+                    box.style.borderColor = '#27ae60';
+                    box.style.backgroundColor = '#f0fdf4';
+                    currentCompletedBoxes++;
+                }
             }
 
             let isRogueHit = false;
