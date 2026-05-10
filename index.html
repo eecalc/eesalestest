@@ -21,6 +21,26 @@
         
         h1 { color: #005c63; text-align: center; margin-bottom: 5px; font-size: 1.8em; }
         h2 { color: #009aa6; margin-bottom: 10px; margin-top: 30px; border-bottom: 2px solid #b2e0e3; padding-bottom: 5px; font-size: 1.3em; }
+
+        /* LIVE SCORECARD UI */
+        .scorecard-container { background: #1a252f; border-radius: 12px; padding: 20px; margin-bottom: 30px; color: white; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+        .scorecard-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #34495e; padding-bottom: 15px; }
+        .score-overall { font-size: 4em; font-weight: 900; line-height: 1; margin: 10px 0; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .score-overall.color-red { color: #e74c3c; } .score-overall.color-amber { color: #f39c12; } .score-overall.color-green { color: #27ae60; } .score-overall.color-blue { color: #3498db; }
+        
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+        .kpi-badge { background: #2c3e50; border-radius: 8px; padding: 12px 8px; text-align: center; border-top: 4px solid #7f8c8d; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .kpi-name { font-weight: bold; font-size: 0.8em; color: #ecf0f1; margin-bottom: 8px; display: block; letter-spacing: 0.5px; }
+        .kpi-target { font-size: 0.75em; color: #bdc3c7; line-height: 1.4; }
+        .kpi-target span { font-size: 1.2em; font-weight: bold; }
+        .kpi-blue-win { color: #3498db; font-size: 0.8em; font-weight: bold; animation: pulseBlue 2s infinite; }
+        @keyframes pulseBlue { 0% { opacity: 0.7; } 50% { opacity: 1; text-shadow: 0 0 8px rgba(52, 152, 219, 0.8); } 100% { opacity: 0.7; } }
+
+        /* TRACK ONLY BUTTONS */
+        .bonus-trackers { background: #fdfefe; border: 2px dashed #bdc3c7; border-radius: 8px; padding: 15px; margin-bottom: 30px; text-align: center; }
+        .bonus-btn { background: #34495e; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 0.85em; margin: 4px; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+        .bonus-btn:active { transform: scale(0.95); }
+        .bonus-btn span { color: #f39c12; font-size: 1.2em; margin-right: 4px; }
         
         /* MODAL STYLING */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 9999; display: none; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; padding: 20px; box-sizing: border-box;}
@@ -98,11 +118,7 @@
         .action-or { font-weight: bold; color: #777; margin: 0 8px; font-size: 0.8em; }
         
         .action-item.crossed-off { background-color: #bdc3c7; color: #ecf0f1; opacity: 0.8; }
-        .action-item.crossed-off::after {
-            content: ''; position: absolute; top: 50%; left: 5%; width: 90%; height: 3px;
-            background-color: #e74c3c; transform: translateY(-50%);
-            animation: strike 0.2s ease-out forwards;
-        }
+        .action-item.crossed-off::after { content: ''; position: absolute; top: 50%; left: 5%; width: 90%; height: 3px; background-color: #e74c3c; transform: translateY(-50%); animation: strike 0.2s ease-out forwards; }
 
         .commission-banner { background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7); color: #333; padding: 15px; border-radius: 8px; text-align: center; font-size: 1.1em; margin-bottom: 20px; display: none; border: 2px solid #d4af37; animation: popIn 0.3s ease; box-shadow: 0 4px 10px rgba(218, 165, 32, 0.3); text-shadow: 0 1px 0 rgba(255,255,255,0.5); transform: translateZ(0); }
         .reset-btn { display: block; width: 100%; padding: 15px; background-color: #e74c3c; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 30px; font-size: 1.1em; text-transform: uppercase; transform: translateZ(0); }
@@ -161,24 +177,30 @@
             .result-label { font-size: 0.65em; letter-spacing: 0; }
             .result-value { font-size: 2.2em; }
             .run-rate-inputs { flex-direction: column; gap: 20px; align-items: center;}
-            
             table { width: 100%; min-width: 100%; } 
             td, th { padding: 6px 1px; font-size: 0.70em; letter-spacing: -0.5px; text-align: center; } 
             th:first-child, td:first-child { text-align: left; }
             .quick-add-btn { width: 26px; height: 26px; font-size: 1.1em; } 
             input[type="number"] { font-size: 12px; width: 34px; padding: 4px; }
             .progress-text { font-size: 0.9em; }
-            
             h1 { font-size: 1.4em; }
             .action-item { font-size: 0.85em; padding: 5px 8px; }
             .version-tag { font-size: 0.7em; }
+            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+            .kpi-name { font-size: 0.7em; }
+            .score-overall { font-size: 3em; }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
-<div class="version-tag">v2.0.2</div>
+<div class="version-tag">v3.0.1</div>
+
+<script>
+    const SCORECARD_URL = "https://script.google.com/macros/s/AKfycbw4ynJHV0Db9JaayvVx2sfg_OiKBJzkaQ6I9-kwjfPRYI_8GBsYcAPKHn6JbPzjUPzTiw/exec";
+    const PUBLISHED_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQpuIlerFYJO6NPDhH-MDGhxv3XTAWpVe-EuzEb_B2sbcXQHSVA8hOXPKXsOIjIaXlb3Y65-OiHEVhp/pub?output=csv';
+</script>
 
 <div class="modal-overlay" id="devPasswordModal">
     <div class="modal-content" style="max-width: 350px; text-align: center; border-top: 6px solid #e74c3c;">
@@ -219,12 +241,12 @@
     <div class="modal-content">
         <h3>🚀 Release Notes</h3>
         <div class="version-block">
-            <h4>v2.0.2 - Weekly Deals Update</h4>
+            <h4>v3.0.1 - The Store-Wide Sync Update</h4>
             <p style="color: #555; font-size: 0.9em; margin-top: -5px;">Update by Reece:</p>
             <ul>
-                <li><strong>Wording Updates:</strong> Modal and button text updated to "Weekly Deals".</li>
-                <li><strong>Auto-Expiring Deals (Holiday Mode):</strong> Column V in your spreadsheet is now a "Valid Until" column. Enter a date, and if you go on holiday and forget to delete the row, the app will automatically hide the deal from the store floor once that date passes!</li>
-                <li><strong>22-Column Breakdown Engine:</strong> The receipt engine has been completely rebuilt to read your brand new expanded Google Sheet. It now natively supports dynamically injecting Game Consoles and Extra Handsets into the bundle breakdowns.</li>
+                <li><strong>Live Store Scorecard:</strong> Added the new Dashboard that syncs directly with Google Sheets. Checks for live updates across the store every 60 seconds.</li>
+                <li><strong>Bonus Trackers:</strong> Added a quick-tap section to record extra KPIs (Insurance, Gaming, etc.) without altering your personal commission stats.</li>
+                <li><strong>Smart Staircase Logic:</strong> The dashboard intelligently hides lower-tier goals based on your current performance, keeping you focused on the next colour jump!</li>
             </ul>
         </div>
         <button class="modal-btn" onclick="closeChangelog()">Amazing, thanks!</button>
@@ -246,12 +268,61 @@
 
     <h1>EE Rhyl Target Calculator</h1>
     
+    <div class="scorecard-container">
+        <div class="scorecard-header">
+            <span style="font-size:0.9em; letter-spacing:2px; text-transform:uppercase; color:#95a5a6;">Live Store Scorecard</span>
+            <div id="sc-overall-score" class="score-overall">--</div>
+            <div style="font-size:0.85em; color:#7f8c8d;" id="sc-last-sync">Syncing...</div>
+        </div>
+        <div class="kpi-grid" id="sc-kpi-grid">
+            <div style="grid-column: 1 / -1; text-align:center; padding: 20px; color:#bdc3c7;">
+                Connecting to HQ Scorecard Matrix...
+            </div>
+        </div>
+    </div>
+
+    <div class="bonus-trackers">
+        <span style="display:block; font-size:0.85em; font-weight:bold; color:#7f8c8d; text-transform:uppercase; margin-bottom:10px;">Store Bonus KPIs (Track Only)</span>
+        <div style="display:flex; flex-wrap:wrap; justify-content:center; gap: 8px;">
+            <div style="display:flex; align-items:center; background:#ecf0f1; border-radius:6px; padding:2px;">
+                <button class="bonus-btn" style="background:#e74c3c; margin:0;" onclick="sendScorecardUpdate('NPS', -1)">-</button>
+                <span style="padding:0 10px; font-weight:bold; color:#2c3e50;">NPS</span>
+                <button class="bonus-btn" style="background:#27ae60; margin:0;" onclick="sendScorecardUpdate('NPS', 1)">+</button>
+            </div>
+            <div style="display:flex; align-items:center; background:#ecf0f1; border-radius:6px; padding:2px;">
+                <button class="bonus-btn" style="background:#e74c3c; margin:0;" onclick="sendScorecardUpdate('COMPL', -1)">-</button>
+                <span style="padding:0 10px; font-weight:bold; color:#2c3e50;">COMPL</span>
+                <button class="bonus-btn" style="background:#27ae60; margin:0;" onclick="sendScorecardUpdate('COMPL', 1)">+</button>
+            </div>
+            <div style="display:flex; align-items:center; background:#ecf0f1; border-radius:6px; padding:2px;">
+                <button class="bonus-btn" style="background:#e74c3c; margin:0;" onclick="sendScorecardUpdate('NEW SME', -1)">-</button>
+                <span style="padding:0 10px; font-weight:bold; color:#2c3e50;">NEW SME</span>
+                <button class="bonus-btn" style="background:#27ae60; margin:0;" onclick="sendScorecardUpdate('NEW SME', 1)">+</button>
+            </div>
+            <div style="display:flex; align-items:center; background:#ecf0f1; border-radius:6px; padding:2px;">
+                <button class="bonus-btn" style="background:#e74c3c; margin:0;" onclick="sendScorecardUpdate('INSURANCE', -1)">-</button>
+                <span style="padding:0 10px; font-weight:bold; color:#2c3e50;">INSURE</span>
+                <button class="bonus-btn" style="background:#27ae60; margin:0;" onclick="sendScorecardUpdate('INSURANCE', 1)">+</button>
+            </div>
+            <div style="display:flex; align-items:center; background:#ecf0f1; border-radius:6px; padding:2px;">
+                <button class="bonus-btn" style="background:#e74c3c; margin:0;" onclick="sendScorecardUpdate('GAMING', -1)">-</button>
+                <span style="padding:0 10px; font-weight:bold; color:#2c3e50;">GAMING</span>
+                <button class="bonus-btn" style="background:#27ae60; margin:0;" onclick="sendScorecardUpdate('GAMING', 1)">+</button>
+            </div>
+            <div style="display:flex; align-items:center; background:#ecf0f1; border-radius:6px; padding:2px;">
+                <button class="bonus-btn" style="background:#e74c3c; margin:0;" onclick="sendScorecardUpdate('SR', -1)">-</button>
+                <span style="padding:0 10px; font-weight:bold; color:#2c3e50;">SR</span>
+                <button class="bonus-btn" style="background:#27ae60; margin:0;" onclick="sendScorecardUpdate('SR', 1)">+</button>
+            </div>
+        </div>
+    </div>
+    
     <button id="lockMonthBtn" class="setup-btn lock-btn" style="display: none;" onclick="lockMonth()">🔒 Lock In Targets & Shifts</button>
     <button id="setupModeBtn" class="setup-btn" style="display: none;" onclick="toggleSetupMode()">🛠️ Enable Setup Mode</button>
 
     <div class="results-container">
         <div class="result-box" style="flex: 1;">
-            <div class="result-label">CURRENT OVERALL %</div>
+            <div class="result-label">PERSONAL COMMISSION %</div>
             <div class="result-value" id="currentOverall">0.00%</div>
         </div>
     </div>
@@ -322,7 +393,7 @@
     </div>
 
     <div id="tablesContainer">
-        <h2>Current Performance</h2>
+        <h2>Personal Commission Breakdown</h2>
         <div class="table-responsive">
             <table>
                 <thead>
@@ -346,7 +417,7 @@
 </div>
 
 <script>
-    const APP_VERSION = "2.0.2";
+    const APP_VERSION = "3.0.1";
 
     const defaultCategories = [
         { name: "NEW HANDSETS", target: 0, achieved: 0 },
@@ -369,13 +440,103 @@
     let displayedCurrentOverall = 0;
 
     let simulatedDateOffset = parseInt(localStorage.getItem('eeRhylSimOffset')) || 0;
+
+    // --- SCORECARD ENGINE ---
+    const scColorMap = { "Red": "#e74c3c", "Amber": "#f39c12", "Green": "#27ae60", "Blue": "#3498db" };
     
-    // --- HOT DEALS ENGINE (22 COLUMN HOLIDAY MODE PATCH) ---
+    // Map Personal Calculator KPIs to Scorecard KPIs
+    const kpiMapping = {
+        "NEW HANDSETS": "NEW H/S",
+        "UPGRADES": "UPG H/S",
+        "NEW PAYM/SIM": "NEW CON",
+        "NEW HBB": "NEW HBB",
+        "REG HBB": "REG HBB",
+        "TV": "TV"
+    };
+
+    function fetchScorecard() {
+        if (!SCORECARD_URL || SCORECARD_URL === "YOUR_SCRIPT_URL_HERE") return;
+        let oldScript = document.getElementById('scorecard-jsonp');
+        if (oldScript) oldScript.remove();
+        let script = document.createElement('script');
+        script.id = 'scorecard-jsonp';
+        script.src = `${SCORECARD_URL}?action=read&callback=processScorecard&_bust=${Date.now()}`;
+        document.body.appendChild(script);
+    }
+
+    function processScorecard(data) {
+        if (data.error) {
+            document.getElementById('sc-kpi-grid').innerHTML = `<div style="grid-column: 1 / -1; color:#e74c3c;">${data.error}</div>`;
+            return;
+        }
+
+        let overallEl = document.getElementById('sc-overall-score');
+        
+        let scoreVal = parseFloat(data.overallScore);
+        overallEl.innerText = isNaN(scoreVal) ? data.overallScore : scoreVal.toFixed(2);
+        
+        overallEl.className = 'score-overall';
+        if(data.overallColor) overallEl.classList.add('color-' + data.overallColor.toLowerCase());
+
+        let d = new Date();
+        document.getElementById('sc-last-sync').innerText = `Live Sync Active • Last checked: ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+
+        let gridHtml = '';
+        data.kpis.forEach(kpi => {
+            if(!kpi.name) return;
+            let sold = kpi.soldToday;
+            let remAmber = kpi.needAmber - sold;
+            let remGreen = kpi.needGreen - sold;
+            let remBlue = kpi.needBlue - sold;
+
+            // Smart Staircase Upgrade Logic
+            let displayColor = kpi.color;
+            if (kpi.color === "Red" && remAmber <= 0) displayColor = "Amber";
+            if ((displayColor === "Red" || displayColor === "Amber") && remGreen <= 0) displayColor = "Green";
+            if (displayColor !== "Blue" && remBlue <= 0) displayColor = "Blue";
+
+            let topBorder = scColorMap[displayColor] || "#95a5a6";
+            
+            gridHtml += `<div class="kpi-badge" style="border-top-color: ${topBorder}">
+                <span class="kpi-name">${kpi.name}</span>`;
+            
+            if (displayColor === "Blue") {
+                gridHtml += `<div class="kpi-blue-win">Keep going to keep this blue! 🟦</div>`;
+            } else if (displayColor === "Green") {
+                gridHtml += `<div class="kpi-target">Need <span style="color:#3498db;">${Math.max(0, remBlue)}</span> for Blue</div>`;
+            } else if (displayColor === "Amber") {
+                gridHtml += `<div class="kpi-target">Need <span style="color:#27ae60;">${Math.max(0, remGreen)}</span> for Green</div>
+                             <div class="kpi-target">Need <span style="color:#3498db;">${Math.max(0, remBlue)}</span> for Blue</div>`;
+            } else { // Red
+                gridHtml += `<div class="kpi-target">Need <span style="color:#f39c12;">${Math.max(0, remAmber)}</span> for Amber</div>
+                             <div class="kpi-target">Need <span style="color:#27ae60;">${Math.max(0, remGreen)}</span> for Green</div>
+                             <div class="kpi-target">Need <span style="color:#3498db;">${Math.max(0, remBlue)}</span> for Blue</div>`;
+            }
+            gridHtml += `</div>`;
+        });
+
+        document.getElementById('sc-kpi-grid').innerHTML = gridHtml;
+    }
+
+    function sendScorecardUpdate(kpiName, val) {
+        if (!SCORECARD_URL || SCORECARD_URL === "YOUR_SCRIPT_URL_HERE") return;
+        document.getElementById('sc-last-sync').innerText = "Sending sale to HQ...";
+        fetch(`${SCORECARD_URL}?action=update&kpi=${encodeURIComponent(kpiName)}&val=${val}`, { mode: 'no-cors' })
+            .then(() => {
+                setTimeout(fetchScorecard, 1500); // Wait 1.5s then pull fresh scorecard
+            }).catch(e => console.log(e));
+    }
+
+    // Polling heartbeat
+    setInterval(fetchScorecard, 60000); // 60 seconds
+    setTimeout(fetchScorecard, 1000); // Initial fetch
+    // --- END SCORECARD ENGINE ---
+
+    
+    // --- HOT DEALS ENGINE ---
     let dealsData = [];
     let dealCategories = [];
     let currentCategory = '';
-
-    const PUBLISHED_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQpuIlerFYJO6NPDhH-MDGhxv3XTAWpVe-EuzEb_B2sbcXQHSVA8hOXPKXsOIjIaXlb3Y65-OiHEVhp/pub?output=csv';
 
     async function openDealsModal() {
         const modal = document.getElementById('dealsModal');
@@ -406,7 +567,6 @@
 
     function loadLocalTestData() {
         const container = document.getElementById('dealsContainer');
-        // Dummy local fallback matching the new 22 column layout (A to V)
         const testCSV = `Category,Headline,Tagline,Total Monthly,Upfront,Device Name,Device Term,Device Monthly,Total Device Cost,Airtime Plan,Airtime Monthly,2nd Device Name,2nd Device Term,2nd Device Monthly,Console Name,Console Term,Console Monthly,Addline Name,Addline Term,Addline Monthly,Addline Details,Valid until
 Samsung,Samsung S26 Ultra Bundle,Ends soon!,£76.40,£20.00,Samsung S26 Ultra 256GB,36M,£39.40,£1349.00,Essentials,£25.00,,,,Nintendo Switch lite,24M,£12.00,testr,136,12,test,
 Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro Max,36M,£48.00,£1728,100GB Data,£22.00,,,,,,,,,,`;
@@ -444,7 +604,6 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
         return arr;
     }
 
-    // A robust helper to read UK (DD/MM/YYYY) and Global (YYYY-MM-DD) date formats
     function parseExpiryDate(dateStr) {
         if (!dateStr) return null;
         let cleanStr = dateStr.trim().replace(/"/g, '').split(' ')[0];
@@ -601,21 +760,15 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
         }
     }
 
-    function switchDealTab(cat) {
-        currentCategory = cat;
-        renderDealsUI();
-    }
-
+    function switchDealTab(cat) { currentCategory = cat; renderDealsUI(); }
     function toggleDeal(idx) {
         const card = document.getElementById(`deal-card-${idx}`);
         const details = document.getElementById(`deal-details-${idx}`);
         if (details && card) {
             if (details.classList.contains('show')) {
-                details.classList.remove('show');
-                card.classList.remove('open');
+                details.classList.remove('show'); card.classList.remove('open');
             } else {
-                details.classList.add('show');
-                card.classList.add('open');
+                details.classList.add('show'); card.classList.add('open');
             }
         }
     }
@@ -670,10 +823,7 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
         let dpModal = document.getElementById('devPasswordModal');
         if (dpModal) dpModal.style.display = 'flex';
         let dpInput = document.getElementById('devPwdInput');
-        if (dpInput) {
-            dpInput.value = '';
-            setTimeout(() => dpInput.focus(), 100);
-        }
+        if (dpInput) { dpInput.value = ''; setTimeout(() => dpInput.focus(), 100); }
     }
     
     function closeDevModal() {
@@ -710,15 +860,8 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
         isSetupMode = !isSetupMode;
         let btn = document.getElementById('setupModeBtn');
         if (btn) {
-            if(isSetupMode) {
-                btn.innerHTML = "✅ Save & Activate Coach";
-                btn.style.backgroundColor = "#27ae60"; 
-            } else {
-                btn.innerHTML = "🛠️ Enable Setup Mode";
-                btn.style.backgroundColor = "#f39c12"; 
-                isInitial = true; 
-                localStorage.removeItem('eeRhylCoachPicks'); 
-            }
+            if(isSetupMode) { btn.innerHTML = "✅ Save & Activate Coach"; btn.style.backgroundColor = "#27ae60"; } 
+            else { btn.innerHTML = "🛠️ Enable Setup Mode"; btn.style.backgroundColor = "#f39c12"; isInitial = true; localStorage.removeItem('eeRhylCoachPicks'); }
         }
         calculate();
     }
@@ -730,10 +873,7 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
     }
 
     function lockMonth() {
-        if (pacingData.total <= 0) {
-            alert("Please enter your Total Shifts for the month before locking.");
-            return;
-        }
+        if (pacingData.total <= 0) { alert("Please enter your Total Shifts for the month before locking."); return; }
         if (confirm("Are you sure this is correct? You won't be able to adjust targets or total shifts without developer access.")) {
             pacingData.monthLocked = true;
             pacingData.lastUpdate = getTodayStr(); 
@@ -835,10 +975,7 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
             if (plusBtn) plusBtn.style.display = 'none';
             if (minusBtn) minusBtn.style.display = 'none';
             if (confirmBtn) confirmBtn.style.display = 'none';
-            if (lockMsg) {
-                lockMsg.style.display = 'block';
-                lockMsg.innerText = "🔒 Locked for today";
-            }
+            if (lockMsg) { lockMsg.style.display = 'block'; lockMsg.innerText = "🔒 Locked for today"; }
             shiftInput.style.borderBottom = 'none';
             
             if (isDevMode) {
@@ -846,10 +983,7 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
                  if (plusBtn) plusBtn.style.display = 'inline-block';
                  if (minusBtn) minusBtn.style.display = 'inline-block';
                  if (confirmBtn) confirmBtn.style.display = 'block';
-                 if (lockMsg) {
-                     lockMsg.innerText = "🛠️ Admin Override Active";
-                     lockMsg.style.color = "#f39c12";
-                 }
+                 if (lockMsg) { lockMsg.innerText = "🛠️ Admin Override Active"; lockMsg.style.color = "#f39c12"; }
                  shiftInput.style.borderBottom = '1px dashed #b2e0e3';
             }
             return false; 
@@ -859,14 +993,8 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
                 shiftAlert.innerHTML = "⚠️ <strong>ACTION REQUIRED:</strong> DID YOU WORK YESTERDAY? PLEASE UPDATE YOUR SHIFTS AND CLICK CONFIRM.";
             }
             shiftInput.disabled = false;
-            if (plusBtn) {
-                plusBtn.style.display = 'inline-block';
-                plusBtn.disabled = false;
-            }
-            if (minusBtn) {
-                minusBtn.style.display = 'inline-block'; 
-                minusBtn.disabled = false;
-            }
+            if (plusBtn) { plusBtn.style.display = 'inline-block'; plusBtn.disabled = false; }
+            if (minusBtn) { minusBtn.style.display = 'inline-block'; minusBtn.disabled = false; }
             if (confirmBtn) confirmBtn.style.display = 'block';
             if (lockMsg) lockMsg.style.display = 'none';
             shiftInput.style.borderBottom = '1px dashed #b2e0e3';
@@ -889,6 +1017,13 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
         let tInput = document.getElementById(`target-in-${i}`);
         if (f === 'achieved' && aInput) { aInput.value = categories[i][f]; } 
         else if (f === 'target' && tInput) { tInput.value = categories[i][f]; }
+        
+        // --- SCORECARD TRIGGER ---
+        if (f === 'achieved') {
+            let scName = kpiMapping[categories[i].name];
+            if(scName) sendScorecardUpdate(scName, c);
+        }
+        
         updateData(i, f, categories[i][f]); 
     }
     
