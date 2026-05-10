@@ -178,7 +178,7 @@
 </head>
 <body>
 
-<div class="version-tag">v2.0.0</div>
+<div class="version-tag">v2.0.1</div>
 
 <div class="modal-overlay" id="devPasswordModal">
     <div class="modal-content" style="max-width: 350px; text-align: center; border-top: 6px solid #e74c3c;">
@@ -219,12 +219,11 @@
     <div class="modal-content">
         <h3>🚀 Release Notes</h3>
         <div class="version-block">
-            <h4>v2.0.0 - The Mega Expansion</h4>
+            <h4>v2.0.1 - The Date Fix</h4>
             <p style="color: #555; font-size: 0.9em; margin-top: -5px;">Update by Reece:</p>
             <ul>
-                <li><strong>Auto-Expiring Deals (Holiday Mode):</strong> Column V in your spreadsheet is now a "Valid Until" column. Enter a date (like 25/05/2026), and if you go on holiday and forget to delete the row, the app will automatically hide the deal from the store floor once that date passes!</li>
-                <li><strong>22-Column Breakdown Engine:</strong> The receipt engine has been completely rebuilt to read your brand new expanded Google Sheet. It now natively supports dynamically injecting Game Consoles and Extra Handsets into the bundle breakdowns.</li>
-                <li><strong>Static Shift Goals (The Gamified Checklist):</strong> The Daily RR column remains a frozen shift goal checklist that automatically gives you a satisfying "✓" when you clear your daily target for that KPI.</li>
+                <li><strong>Bulletproof Date Parser:</strong> Fixed a bug where Google Sheets would secretly compress 2026 into a 2-digit year ("26"), causing the app to think the deal expired in the year 1926! The engine now forces all 2-digit years into the 2000s, ensuring your deals stay alive.</li>
+                <li><strong>Auto-Expiring Deals (Holiday Mode):</strong> Column V in your spreadsheet remains your "Valid Until" column. Enter a date, and the app will automatically hide the deal from the store floor once that date passes!</li>
             </ul>
         </div>
         <button class="modal-btn" onclick="closeChangelog()">Amazing, thanks!</button>
@@ -346,7 +345,7 @@
 </div>
 
 <script>
-    const APP_VERSION = "2.0.0";
+    const APP_VERSION = "2.0.1";
 
     const defaultCategories = [
         { name: "NEW HANDSETS", target: 0, achieved: 0 },
@@ -370,7 +369,7 @@
 
     let simulatedDateOffset = parseInt(localStorage.getItem('eeRhylSimOffset')) || 0;
     
-    // --- HOT DEALS ENGINE (22 COLUMN HOLIDAY MODE PATCH) ---
+    // --- HOT DEALS ENGINE (BULLETPROOF DATE PATCH) ---
     let dealsData = [];
     let dealCategories = [];
     let currentCategory = '';
@@ -406,7 +405,6 @@
 
     function loadLocalTestData() {
         const container = document.getElementById('dealsContainer');
-        // Dummy local fallback matching the new 22 column layout (A to V)
         const testCSV = `Category,Headline,Tagline,Total Monthly,Upfront,Device Name,Device Term,Device Monthly,Total Device Cost,Airtime Plan,Airtime Monthly,2nd Device Name,2nd Device Term,2nd Device Monthly,Console Name,Console Term,Console Monthly,Addline Name,Addline Term,Addline Monthly,Addline Details,Valid until
 Samsung,Samsung S26 Ultra Bundle,Ends soon!,£76.40,£20.00,Samsung S26 Ultra 256GB,36M,£39.40,£1349.00,Essentials,£25.00,,,,Nintendo Switch lite,24M,£12.00,testr,136,12,test,
 Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro Max,36M,£48.00,£1728,100GB Data,£22.00,,,,,,,,,,`;
@@ -444,26 +442,41 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
         return arr;
     }
 
-    // A robust helper to read UK (DD/MM/YYYY) and Global (YYYY-MM-DD) date formats
+    // THE BULLETPROOF DATE PARSER
     function parseExpiryDate(dateStr) {
         if (!dateStr) return null;
-        let parts = dateStr.split('/');
+        // Clean the string (strip spaces, hidden quotes, and trailing times)
+        let cleanStr = dateStr.trim().replace(/"/g, '').split(' ')[0];
+        
+        // Split by slashes or dashes
+        let parts = cleanStr.split(/[\/\-]/);
+        
         if (parts.length === 3) {
-            // Assume DD/MM/YYYY
-            return new Date(parts[2], parts[1] - 1, parts[0]);
-        }
-        parts = dateStr.split('-');
-        if (parts.length === 3) {
-            if (parts[0].length === 4) {
-                // Assume YYYY-MM-DD
-                return new Date(parts[0], parts[1] - 1, parts[2]);
+            let p0 = parseInt(parts[0]);
+            let p1 = parseInt(parts[1]);
+            let p2 = parseInt(parts[2]);
+            
+            let y, m, d;
+            
+            if (p0 > 1000) {
+                // Format: YYYY-MM-DD
+                y = p0; m = p1 - 1; d = p2;
+            } else if (p2 > 1000) {
+                // Format: DD-MM-YYYY or MM-DD-YYYY
+                y = p2; m = p1 - 1; d = p0; 
+            } else {
+                // Format: DD-MM-YY (2-digit year trap!)
+                // Force the year into the 2000s
+                y = p2 + 2000; m = p1 - 1; d = p0;
             }
-            // Assume DD-MM-YYYY
-            return new Date(parts[2], parts[1] - 1, parts[0]);
+            
+            let parsedDate = new Date(y, m, d);
+            if (!isNaN(parsedDate)) return parsedDate;
         }
-        // Fallback
-        let d = new Date(dateStr);
-        return isNaN(d) ? null : d;
+        
+        // Final fallback just in case
+        let fallback = new Date(dateStr);
+        return isNaN(fallback) ? null : fallback;
     }
 
     function processDealsCSV(csvText, isFallback = false) {
@@ -471,10 +484,8 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
         dealsData = [];
         dealCategories = [];
         
-        // Get today's real date, plus whatever simulated offset you are testing
         let currentAppDate = new Date();
         currentAppDate.setDate(currentAppDate.getDate() + simulatedDateOffset);
-        // Reset to midnight so we are only comparing calendar days
         currentAppDate.setHours(0, 0, 0, 0); 
         
         for (let i = 1; i < rows.length; i++) {
@@ -482,11 +493,12 @@ Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro M
             if (!row || row.length < 2 || !row[0].trim()) continue; 
             
             // --- HOLIDAY MODE EXPIRATION CHECK ---
-            // Column V is index 21 (0-indexed)
+            // Column V is index 21
             let expiryStr = row[21] ? row[21].trim() : '';
             let expiryDate = parseExpiryDate(expiryStr);
+            
             if (expiryDate) {
-                expiryDate.setHours(23, 59, 59, 999); // Valid until the END of that calendar day
+                expiryDate.setHours(23, 59, 59, 999); 
                 if (currentAppDate > expiryDate) {
                     continue; // Skip this deal completely, it has expired!
                 }
