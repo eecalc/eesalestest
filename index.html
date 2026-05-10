@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- NATIVE APP ILLUSION TAGS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#009aa6">
@@ -179,7 +178,7 @@
 </head>
 <body>
 
-<div class="version-tag">v1.9.0</div>
+<div class="version-tag">v2.0.0</div>
 
 <div class="modal-overlay" id="devPasswordModal">
     <div class="modal-content" style="max-width: 350px; text-align: center; border-top: 6px solid #e74c3c;">
@@ -203,11 +202,10 @@
     </div>
 </div>
 
-<!-- THE DEALS MODAL -->
 <div class="modal-overlay" id="dealsModal">
     <div class="modal-content" style="max-width: 600px; padding: 20px; border-top: 6px solid #e67e22;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
-            <h3 style="margin: 0; color: #e67e22; border: none; padding: 0; font-size: 1.4em;">🔥 Weekly Deals</h3>
+            <h3 style="margin: 0; color: #e67e22; border: none; padding: 0; font-size: 1.4em;">🔥 Today's Hot Deals</h3>
             <button onclick="closeDealsModal()" style="background:none; border:none; font-size:2em; color: #999; cursor:pointer; line-height: 1;">&times;</button>
         </div>
         <div id="dealsTabs" class="deals-tabs"></div>
@@ -221,11 +219,12 @@
     <div class="modal-content">
         <h3>🚀 Release Notes</h3>
         <div class="version-block">
-            <h4>v1.9.0 - The Holiday Mode Update</h4>
+            <h4>v2.0.0 - The Mega Expansion</h4>
             <p style="color: #555; font-size: 0.9em; margin-top: -5px;">Update by Reece:</p>
             <ul>
-                <li><strong>Auto-Expiring Deals (Holiday Mode):</strong> Column Q in your spreadsheet is now a "Valid Until" column. Enter a date (YYYY-MM-DD), and if you go on holiday and forget to delete the row, the app will automatically hide the deal from the store floor once that date passes!</li>
-                <li><strong>Expanded Deal Cards:</strong> The receipt breakdown now natively reads 16 full columns, adding the ability to display "🎮 Game Consoles" and "📦 Extra Handsets" inside the bundle breakdowns.</li>
+                <li><strong>Auto-Expiring Deals (Holiday Mode):</strong> Column V in your spreadsheet is now a "Valid Until" column. Enter a date (like 25/05/2026), and if you go on holiday and forget to delete the row, the app will automatically hide the deal from the store floor once that date passes!</li>
+                <li><strong>22-Column Breakdown Engine:</strong> The receipt engine has been completely rebuilt to read your brand new expanded Google Sheet. It now natively supports dynamically injecting Game Consoles and Extra Handsets into the bundle breakdowns.</li>
+                <li><strong>Static Shift Goals (The Gamified Checklist):</strong> The Daily RR column remains a frozen shift goal checklist that automatically gives you a satisfying "✓" when you clear your daily target for that KPI.</li>
             </ul>
         </div>
         <button class="modal-btn" onclick="closeChangelog()">Amazing, thanks!</button>
@@ -257,8 +256,7 @@
         </div>
     </div>
     
-    <!-- THE DEALS BUTTON -->
-    <button class="setup-btn" style="background: linear-gradient(135deg, #e67e22, #d35400); width: 100%; max-width: 400px; margin: 0 auto 20px auto; display: block; font-size: 1.1em; padding: 12px; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3); border-radius: 8px;" onclick="openDealsModal()">🔥 View These Weekly Deals</button>
+    <button class="setup-btn" style="background: linear-gradient(135deg, #e67e22, #d35400); width: 100%; max-width: 400px; margin: 0 auto 20px auto; display: block; font-size: 1.1em; padding: 12px; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3); border-radius: 8px;" onclick="openDealsModal()">🔥 View Today's Hot Deals</button>
 
     <div id="bufferContainer" class="buffer-box"></div>
 
@@ -300,7 +298,6 @@
         <div id="maximizerMessage" class="mission-message mission-maximizer"></div>
     </div>
 
-    <!-- Hidden by default, kept just in case it's manually restored by user -->
     <div id="shiftSummaryContainer" style="display: none; margin-bottom: 30px;">
         <h2 style="color: #e67e22; border-bottom-color: #f8c471;">🔥 Today's Shift Summary</h2>
         <div class="table-responsive">
@@ -349,7 +346,7 @@
 </div>
 
 <script>
-    const APP_VERSION = "1.9.0";
+    const APP_VERSION = "2.0.0";
 
     const defaultCategories = [
         { name: "NEW HANDSETS", target: 0, achieved: 0 },
@@ -373,7 +370,7 @@
 
     let simulatedDateOffset = parseInt(localStorage.getItem('eeRhylSimOffset')) || 0;
     
-    // --- HOT DEALS ENGINE (HOLIDAY MODE + 16 COLUMNS) ---
+    // --- HOT DEALS ENGINE (22 COLUMN HOLIDAY MODE PATCH) ---
     let dealsData = [];
     let dealCategories = [];
     let currentCategory = '';
@@ -409,10 +406,10 @@
 
     function loadLocalTestData() {
         const container = document.getElementById('dealsContainer');
-        const testCSV = `Category,Headline,Tagline,Total Monthly,Upfront,Item 1 Name,Item 1 Term,Item 1 Price,Item 1 Total,Airtime Plan,Airtime Monthly,2nd Device Name,2nd Device Term,2nd Device Monthly,Console Name,Extra Handset Name,Valid Until
-Samsung,Samsung S24 Ultra Bundle,The ultimate pro setup.,£85.00,£30.00,Galaxy S24 Ultra,36 Months,£45.00,£1620,Unlimited Data,£20.00,Galaxy Watch 6,24 Months,£20.00,,,
-Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro Max,36 Months,£48.00,£1728,100GB Data,£22.00,,,,,
-Broadband,Full Fibre 900 + PS5,Ultimate home bundle.,£60.00,£0.00,Smart Hub Plus,,£0.00,,Home Broadband,£40.00,,,,PS5 Digital,,`;
+        // Dummy local fallback matching the new 22 column layout (A to V)
+        const testCSV = `Category,Headline,Tagline,Total Monthly,Upfront,Device Name,Device Term,Device Monthly,Total Device Cost,Airtime Plan,Airtime Monthly,2nd Device Name,2nd Device Term,2nd Device Monthly,Console Name,Console Term,Console Monthly,Addline Name,Addline Term,Addline Monthly,Addline Details,Valid until
+Samsung,Samsung S26 Ultra Bundle,Ends soon!,£76.40,£20.00,Samsung S26 Ultra 256GB,36M,£39.40,£1349.00,Essentials,£25.00,,,,Nintendo Switch lite,24M,£12.00,testr,136,12,test,
+Apple,iPhone 15 Pro Max,Pro camera. Pro display.,£70.00,£50.00,iPhone 15 Pro Max,36M,£48.00,£1728,100GB Data,£22.00,,,,,,,,,,`;
         
         if(container) {
             container.innerHTML = `
@@ -447,6 +444,28 @@ Broadband,Full Fibre 900 + PS5,Ultimate home bundle.,£60.00,£0.00,Smart Hub Pl
         return arr;
     }
 
+    // A robust helper to read UK (DD/MM/YYYY) and Global (YYYY-MM-DD) date formats
+    function parseExpiryDate(dateStr) {
+        if (!dateStr) return null;
+        let parts = dateStr.split('/');
+        if (parts.length === 3) {
+            // Assume DD/MM/YYYY
+            return new Date(parts[2], parts[1] - 1, parts[0]);
+        }
+        parts = dateStr.split('-');
+        if (parts.length === 3) {
+            if (parts[0].length === 4) {
+                // Assume YYYY-MM-DD
+                return new Date(parts[0], parts[1] - 1, parts[2]);
+            }
+            // Assume DD-MM-YYYY
+            return new Date(parts[2], parts[1] - 1, parts[0]);
+        }
+        // Fallback
+        let d = new Date(dateStr);
+        return isNaN(d) ? null : d;
+    }
+
     function processDealsCSV(csvText, isFallback = false) {
         const rows = parseCSV(csvText);
         dealsData = [];
@@ -463,12 +482,12 @@ Broadband,Full Fibre 900 + PS5,Ultimate home bundle.,£60.00,£0.00,Smart Hub Pl
             if (!row || row.length < 2 || !row[0].trim()) continue; 
             
             // --- HOLIDAY MODE EXPIRATION CHECK ---
-            // Column Q is index 16
-            let expiryStr = row[16] ? row[16].trim() : '';
-            if (expiryStr) {
-                let expiryDate = new Date(expiryStr);
-                // If it's a valid date and the current app date is strictly greater than it
-                if (!isNaN(expiryDate) && currentAppDate > expiryDate) {
+            // Column V is index 21 (0-indexed)
+            let expiryStr = row[21] ? row[21].trim() : '';
+            let expiryDate = parseExpiryDate(expiryStr);
+            if (expiryDate) {
+                expiryDate.setHours(23, 59, 59, 999); // Valid until the END of that calendar day
+                if (currentAppDate > expiryDate) {
                     continue; // Skip this deal completely, it has expired!
                 }
             }
@@ -476,28 +495,34 @@ Broadband,Full Fibre 900 + PS5,Ultimate home bundle.,£60.00,£0.00,Smart Hub Pl
             let cat = row[0].trim();
             if (!dealCategories.includes(cat)) dealCategories.push(cat);
             
+            const getVal = (colIndex) => row[colIndex] ? row[colIndex].trim() : '';
+
             dealsData.push({
                 category: cat,
-                headline: row[1] || '',
-                tagline: row[2] || '',
-                totalMonthly: row[3] || '',
-                upfront: row[4] || '',
-                d1Name: row[5] || '',
-                d1Term: row[6] || '',
-                d1Price: row[7] || '',
-                d1Total: row[8] || '',
-                airtimePlan: row[9] || '',
-                airtimePrice: row[10] || '',
-                d2Name: row[11] || '',
-                d2Term: row[12] || '',
-                d2Price: row[13] || '',
-                consoleName: row[14] || '',
-                extraHandsetName: row[15] || ''
+                headline: getVal(1),
+                tagline: getVal(2),
+                totalMonthly: getVal(3),
+                upfront: getVal(4),
+                d1Name: getVal(5),
+                d1Term: getVal(6),
+                d1Price: getVal(7),
+                d1Total: getVal(8),
+                airtimePlan: getVal(9),
+                airtimePrice: getVal(10),
+                d2Name: getVal(11),
+                d2Term: getVal(12),
+                d2Price: getVal(13),
+                consoleName: getVal(14),
+                consoleTerm: getVal(15),
+                consoleMonthly: getVal(16),
+                addlineName: getVal(17),
+                addlineTerm: getVal(18),
+                addlineMonthly: getVal(19),
+                addlineDetails: getVal(20)
             });
         }
         
         if (dealCategories.length > 0) {
-            // Check if the current category still exists (in case all deals in it expired)
             if (!dealCategories.includes(currentCategory)) {
                 currentCategory = dealCategories[0];
             }
@@ -555,14 +580,14 @@ Broadband,Full Fibre 900 + PS5,Ultimate home bundle.,£60.00,£0.00,Smart Hub Pl
 
                     ${deal.consoleName ? `
                     <div class="breakdown-row">
-                        <span class="breakdown-label">🎮 Game Console<span class="breakdown-sub">${deal.consoleName}</span></span>
-                        <span class="breakdown-val"></span>
+                        <span class="breakdown-label">🎮 Game Console<span class="breakdown-sub">${deal.consoleName} ${deal.consoleTerm ? '('+deal.consoleTerm+')' : ''}</span></span>
+                        <span class="breakdown-val">${deal.consoleMonthly}</span>
                     </div>` : ''}
 
-                    ${deal.extraHandsetName ? `
+                    ${deal.addlineName ? `
                     <div class="breakdown-row">
-                        <span class="breakdown-label">📦 Extra Handset<span class="breakdown-sub">${deal.extraHandsetName}</span></span>
-                        <span class="breakdown-val"></span>
+                        <span class="breakdown-label">📦 Extra Handset<span class="breakdown-sub">${deal.addlineName} ${deal.addlineTerm ? '('+deal.addlineTerm+')' : ''}</span></span>
+                        <span class="breakdown-val">${deal.addlineMonthly}${deal.addlineDetails ? '<span class="breakdown-sub">'+deal.addlineDetails+'</span>' : ''}</span>
                     </div>` : ''}
                 </div>
             </div>`;
