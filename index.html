@@ -22,25 +22,25 @@
         h1 { color: #005c63; text-align: center; margin-bottom: 5px; font-size: 1.8em; }
         h2 { color: #009aa6; margin-bottom: 10px; margin-top: 30px; border-bottom: 2px solid #b2e0e3; padding-bottom: 5px; font-size: 1.3em; }
 
-        /* LIVE SCORECARD UI */
-        .scorecard-container { background: #1a252f; border-radius: 12px; padding: 20px; margin-bottom: 30px; color: white; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
-        .scorecard-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #34495e; padding-bottom: 15px; }
-        .score-overall { font-size: 4em; font-weight: 900; line-height: 1; margin: 10px 0; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        /* LIVE SCORECARD UI (LIGHT THEME RESTORED) */
+        .scorecard-container { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 2px solid #b2e0e3; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .scorecard-header { text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #b2e0e3; padding-bottom: 15px; }
+        .score-overall { font-size: 4em; font-weight: 900; line-height: 1; margin: 10px 0; color: #333; }
         .score-overall.color-red { color: #e74c3c; } .score-overall.color-amber { color: #f39c12; } .score-overall.color-green { color: #27ae60; } .score-overall.color-blue { color: #3498db; }
         
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
-        .kpi-badge { background: #2c3e50; border-radius: 8px; padding: 12px 8px; text-align: center; border-top: 4px solid #7f8c8d; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        .kpi-name { font-weight: bold; font-size: 0.8em; color: #ecf0f1; margin-bottom: 8px; display: block; letter-spacing: 0.5px; }
-        .kpi-target { font-size: 0.75em; color: #bdc3c7; line-height: 1.4; }
+        .kpi-badge { background: #f2fafa; border-radius: 8px; padding: 12px 8px; text-align: center; border-top: 4px solid #7f8c8d; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: #333; }
+        .kpi-name { font-weight: bold; font-size: 0.8em; color: #005c63; margin-bottom: 8px; display: block; letter-spacing: 0.5px; text-transform: uppercase; }
+        .kpi-target { font-size: 0.75em; color: #555; line-height: 1.4; }
         .kpi-target span { font-size: 1.2em; font-weight: bold; }
         .kpi-blue-win { color: #3498db; font-size: 0.8em; font-weight: bold; animation: pulseBlue 2s infinite; }
-        @keyframes pulseBlue { 0% { opacity: 0.7; } 50% { opacity: 1; text-shadow: 0 0 8px rgba(52, 152, 219, 0.8); } 100% { opacity: 0.7; } }
+        @keyframes pulseBlue { 0% { opacity: 0.7; } 50% { opacity: 1; text-shadow: 0 0 8px rgba(52, 152, 219, 0.4); } 100% { opacity: 0.7; } }
 
         /* TRACK ONLY BUTTONS */
-        .bonus-trackers { background: #fdfefe; border: 2px dashed #bdc3c7; border-radius: 8px; padding: 15px; margin-bottom: 30px; text-align: center; }
-        .bonus-btn { background: #34495e; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 0.85em; margin: 4px; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+        .bonus-trackers { background: #e6f5f6; border: 2px dashed #009aa6; border-radius: 8px; padding: 15px; margin-bottom: 30px; text-align: center; }
+        .bonus-btn { background: #009aa6; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 0.85em; margin: 4px; cursor: pointer; transition: background 0.2s, transform 0.1s; }
         .bonus-btn:active { transform: scale(0.95); }
-        .bonus-btn span { color: #f39c12; font-size: 1.2em; margin-right: 4px; }
+        .bonus-btn span { color: #fff000; font-size: 1.2em; margin-right: 4px; }
         
         /* MODAL STYLING */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 9999; display: none; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; padding: 20px; box-sizing: border-box;}
@@ -144,6 +144,28 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes popIn { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
+        /* DEALS MODAL CSS */
+        .deals-tabs { display: flex; overflow-x: auto; gap: 10px; margin-bottom: 15px; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
+        .deal-tab { padding: 8px 16px; border-radius: 20px; background: #f2fafa; color: #555; font-weight: bold; font-size: 0.9em; cursor: pointer; white-space: nowrap; border: 2px solid transparent; transition: all 0.2s ease; transform: translateZ(0); }
+        .deal-tab.active { background: #e6f5f6; color: #009aa6; border-color: #009aa6; box-shadow: 0 2px 6px rgba(0,154,166,0.2); }
+        .deal-card { border: 2px solid #b2e0e3; border-radius: 8px; margin-bottom: 12px; background: white; overflow: hidden; transition: border-color 0.2s ease; transform: translateZ(0); }
+        .deal-card.open { border-color: #e67e22; box-shadow: 0 4px 12px rgba(230,126,34,0.15); }
+        .deal-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fcfcfc; transition: background-color 0.2s ease; }
+        .deal-header:hover { background: #f9f9f9; }
+        .deal-header-left { flex: 1; padding-right: 10px; }
+        .deal-headline { margin: 0; font-size: 1.05em; color: #005c63; font-weight: bold; line-height: 1.3; }
+        .deal-tagline { font-size: 0.85em; color: #777; margin: 4px 0 0 0; }
+        .deal-header-right { text-align: right; min-width: 80px; }
+        .deal-price { font-size: 1.3em; font-weight: bold; color: #d35400; display: block; letter-spacing: -0.5px; }
+        .deal-upfront { font-size: 0.75em; color: #555; display: block; margin-top: 2px; text-transform: uppercase; font-weight: bold; }
+        .deal-details { display: none; padding: 15px; border-top: 2px dashed #eee; background: #fff; font-size: 0.95em; }
+        .deal-details.show { display: block; animation: fadeIn 0.2s ease; }
+        .breakdown-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
+        .breakdown-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .breakdown-label { color: #333; font-weight: bold; display: flex; flex-direction: column; }
+        .breakdown-sub { font-size: 0.8em; color: #777; font-weight: normal; margin-top: 2px; }
+        .breakdown-val { color: #005c63; font-weight: bold; text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+
         /* THE MOBILE CSS FIX */
         @media (max-width: 600px) {
             .container { padding: 15px 5px; box-shadow: none; border: 1px solid #ddd; border-top: 6px solid #005c63; } 
@@ -160,10 +182,7 @@
             th:first-child, td:first-child { text-align: left; }
             .quick-add-btn { width: 26px; height: 26px; font-size: 1.1em; } 
             input[type="number"] { font-size: 12px; width: 34px; padding: 4px; }
-            .progress-text { font-size: 0.9em; }
-            h1 { font-size: 1.4em; }
             .action-item { font-size: 0.85em; padding: 5px 8px; }
-            .version-tag { font-size: 0.7em; }
             .kpi-grid { grid-template-columns: repeat(3, 1fr); }
             .kpi-name { font-size: 0.7em; }
             .score-overall { font-size: 3em; }
@@ -173,10 +192,11 @@
 </head>
 <body>
 
-<div class="version-tag">v3.0.6</div>
+<div class="version-tag">v3.0.7</div>
 
 <script>
     const SCORECARD_URL = "https://script.google.com/macros/s/AKfycbw4ynJHV0Db9JaayvVx2sfg_OiKBJzkaQ6I9-kwjfPRYI_8GBsYcAPKHn6JbPzjUPzTiw/exec";
+    const PUBLISHED_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQpuIlerFYJO6NPDhH-MDGhxv3XTAWpVe-EuzEb_B2sbcXQHSVA8hOXPKXsOIjIaXlb3Y65-OiHEVhp/pub?output=csv';
 </script>
 
 <div class="modal-overlay" id="devPasswordModal">
@@ -201,17 +221,31 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="dealsModal">
+    <div class="modal-content" style="max-width: 600px; padding: 20px; border-top: 6px solid #e67e22;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+            <h3 style="margin: 0; color: #e67e22; border: none; padding: 0; font-size: 1.4em;">🔥 Weekly Deals</h3>
+            <button onclick="closeDealsModal()" style="background:none; border:none; font-size:2em; color: #999; cursor:pointer; line-height: 1;">&times;</button>
+        </div>
+        <div id="dealsTabs" class="deals-tabs"></div>
+        <div id="dealsContainer" class="deals-container" style="max-height: 60vh; overflow-y: auto; padding-right: 5px;">
+            <div style="text-align: center; color: #777; padding: 20px;">Fetching live deals from HQ... 🔄</div>
+        </div>
+    </div>
+</div>
+
 <div class="modal-overlay" id="changelogModal">
     <div class="modal-content">
         <h3>🚀 Release Notes</h3>
         <div class="version-block">
-            <h4>v3.0.6 - Dashboard Fixes</h4>
+            <h4>v3.0.7 - Polling & Display Patches</h4>
             <p style="color: #555; font-size: 0.9em; margin-top: -5px;">Update by Reece:</p>
             <ul>
-                <li><strong>Dashboard Fix:</strong> Solved an issue where 0-target KPIs (like SR) were falsely auto-upgrading to Blue. Now, Blue will ALWAYS display the "Keep going" message!</li>
+                <li><strong>Light Mode Restored:</strong> Fixed the styling of the Store Dashboard so it seamlessly fits the clean teal EE branding of your calculator.</li>
                 <li><strong>Rapid-Click Race Condition Fix:</strong> Added a Queue System. Clicking +3 quickly will bundle your clicks and send +3 safely without crashing the Google Sheet.</li>
                 <li><strong>Smart "NEW CON" Double Trigger:</strong> Handsets and SIM sales now automatically double-fire to update BOTH their specific KPI and the "NEW CON" tracker on the Scorecard.</li>
                 <li><strong>Rapid Polling Engine:</strong> The app actively polls the scorecard 2s, 5s, and 9s after a sale to instantly catch your updated Overall Score!</li>
+                <li><strong>Track-Only Clean Up & Footfall:</strong> Removed the `+` buttons for NPS, COMPL, and SR so sales aren't accidentally logged. Average Footfall is now displayed!</li>
             </ul>
         </div>
         <button class="modal-btn" onclick="closeChangelog()">Amazing, thanks!</button>
@@ -235,33 +269,45 @@
 
     <div class="scorecard-container">
         <div class="scorecard-header">
-            <span style="font-size:0.9em; letter-spacing:2px; text-transform:uppercase; color:#95a5a6;">Live Store Scorecard</span>
-            <div id="sc-overall-score" class="score-overall">--</div>
-            <div style="font-size:0.85em; color:#7f8c8d;" id="sc-last-sync">Syncing...</div>
+            <span style="font-size:0.9em; letter-spacing:2px; text-transform:uppercase; color:#005c63; font-weight:bold;">Live Store Scorecard</span>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 10px;">
+                <div>
+                    <div id="sc-overall-score" class="score-overall">--</div>
+                </div>
+                <div style="text-align: left; border-left: 2px dashed #b2e0e3; padding-left: 20px;">
+                    <div style="font-size: 0.85em; color: #777; text-transform: uppercase; font-weight: bold;">Avg Footfall</div>
+                    <div id="sc-footfall" style="font-size: 2em; font-weight: bold; color: #009aa6; line-height: 1.2;">--</div>
+                </div>
+            </div>
+            <div style="font-size:0.85em; color:#7f8c8d; font-weight:bold; margin-top: 15px;" id="sc-last-sync">Syncing...</div>
         </div>
         <div class="kpi-grid" id="sc-kpi-grid">
-            <div style="grid-column: 1 / -1; text-align:center; padding: 20px; color:#bdc3c7;">
+            <div style="grid-column: 1 / -1; text-align:center; padding: 20px; color:#7f8c8d;">
                 Connecting to HQ Scorecard Matrix...
             </div>
+        </div>
+        <div style="margin-top: 20px; padding: 15px; background-color: #f2fafa; border: 1px solid #b2e0e3; border-radius: 8px; font-size: 0.85em; color: #005c63; line-height: 1.5; text-align: center;">
+            <strong>Note:</strong> The top row are Primary KPI's, the bottom row are secondary KPIs. Primary KPI's must be kept at minimum Amber or above.<br>
+            <span style="font-style: italic; color: #555;">These targets are based on average footfall.</span>
         </div>
     </div>
 
     <div class="bonus-trackers">
-        <span style="display:block; font-size:0.85em; font-weight:bold; color:#7f8c8d; text-transform:uppercase; margin-bottom:10px;">Store Bonus KPIs (Track Only)</span>
+        <span style="display:block; font-size:0.85em; font-weight:bold; color:#005c63; text-transform:uppercase; margin-bottom:10px;">Store Bonus KPIs (Track Only)</span>
         <div style="display:flex; flex-wrap:wrap; justify-content:center; gap: 8px;">
-            <div style="display:flex; align-items:center; background:#ecf0f1; border-radius:6px; padding:2px;">
+            <div style="display:flex; align-items:center; background:#fff; border: 2px solid #b2e0e3; border-radius:6px; padding:2px;">
                 <button class="bonus-btn" style="background:#e74c3c; margin:0;" onclick="sendScorecardUpdate('NEW SME', -1)">-</button>
-                <span style="padding:0 10px; font-weight:bold; color:#2c3e50;">NEW SME</span>
+                <span style="padding:0 10px; font-weight:bold; color:#005c63;">NEW SME</span>
                 <button class="bonus-btn" style="background:#27ae60; margin:0;" onclick="sendScorecardUpdate('NEW SME', 1)">+</button>
             </div>
-            <div style="display:flex; align-items:center; background:#ecf0f1; border-radius:6px; padding:2px;">
+            <div style="display:flex; align-items:center; background:#fff; border: 2px solid #b2e0e3; border-radius:6px; padding:2px;">
                 <button class="bonus-btn" style="background:#e74c3c; margin:0;" onclick="sendScorecardUpdate('INSURANCE', -1)">-</button>
-                <span style="padding:0 10px; font-weight:bold; color:#2c3e50;">INSURE</span>
+                <span style="padding:0 10px; font-weight:bold; color:#005c63;">INSURE</span>
                 <button class="bonus-btn" style="background:#27ae60; margin:0;" onclick="sendScorecardUpdate('INSURANCE', 1)">+</button>
             </div>
-            <div style="display:flex; align-items:center; background:#ecf0f1; border-radius:6px; padding:2px;">
+            <div style="display:flex; align-items:center; background:#fff; border: 2px solid #b2e0e3; border-radius:6px; padding:2px;">
                 <button class="bonus-btn" style="background:#e74c3c; margin:0;" onclick="sendScorecardUpdate('GAMING', -1)">-</button>
-                <span style="padding:0 10px; font-weight:bold; color:#2c3e50;">GAMING</span>
+                <span style="padding:0 10px; font-weight:bold; color:#005c63;">GAMING</span>
                 <button class="bonus-btn" style="background:#27ae60; margin:0;" onclick="sendScorecardUpdate('GAMING', 1)">+</button>
             </div>
         </div>
@@ -276,7 +322,7 @@
             <div class="result-value" id="currentOverall">0.00%</div>
         </div>
     </div>
-
+    
     <div id="bufferContainer" class="buffer-box"></div>
 
     <div id="commissionBanner" class="commission-banner">
@@ -341,7 +387,7 @@
     </div>
 
     <div id="tablesContainer">
-        <h2>Personal Commission Breakdown</h2>
+        <h2>Current Performance</h2>
         <div class="table-responsive">
             <table>
                 <thead>
@@ -364,7 +410,7 @@
     <div class="credits">Designed for EE Rhyl by Reece Farrelly</div>
 </div>
 <script>
-    const APP_VERSION = "3.0.6";
+    const APP_VERSION = "3.0.7";
 
     const defaultCategories = [
         { name: "NEW HANDSETS", target: 0, achieved: 0 },
@@ -427,6 +473,11 @@
         
         overallEl.className = 'score-overall';
         if(data.overallColor) overallEl.classList.add('color-' + data.overallColor.toLowerCase());
+
+        let footfallEl = document.getElementById('sc-footfall');
+        if (footfallEl) {
+            footfallEl.innerText = data.footfall ? data.footfall.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '--';
+        }
 
         let d = new Date();
         document.getElementById('sc-last-sync').innerText = `Live Sync Active • Last checked: ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
@@ -1807,4 +1858,3 @@
 </script>
 </body>
 </html>
-
