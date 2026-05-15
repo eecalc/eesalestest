@@ -11,6 +11,7 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #009aa6; color: #333; margin: 0; padding: 20px 10px; transition: background-color 0.5s ease; -webkit-tap-highlight-color: transparent; }
         
+        /* HARDWARE ACCELERATION */
         .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 50, 50, 0.3); border-top: 8px solid #005c63; transition: border-top-color 0.5s ease; position: relative; transform: translateZ(0); -webkit-transform: translateZ(0); will-change: transform; }
         
         .logo-container { text-align: center; margin-bottom: 20px; }
@@ -18,8 +19,9 @@
         .code-logo:active { transform: scale(0.95); }
         
         h1 { color: #005c63; text-align: center; margin-bottom: 5px; font-size: 1.8em; }
-        
-        /* LIVE SCORECARD UI (LIGHT THEME) */
+        h2 { color: #009aa6; margin-bottom: 10px; margin-top: 30px; border-bottom: 2px solid #b2e0e3; padding-bottom: 5px; font-size: 1.3em; }
+
+        /* LIVE SCORECARD UI */
         .scorecard-container { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 2px solid #b2e0e3; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .scorecard-header { text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #b2e0e3; padding-bottom: 15px; }
         .score-overall { font-size: 4em; font-weight: 900; line-height: 1; margin: 10px 0; color: #333; }
@@ -33,6 +35,7 @@
         .kpi-blue-win { color: #3498db; font-size: 0.8em; font-weight: bold; animation: pulseBlue 2s infinite; }
         @keyframes pulseBlue { 0% { opacity: 0.7; } 50% { opacity: 1; text-shadow: 0 0 8px rgba(52, 152, 219, 0.4); } 100% { opacity: 0.7; } }
         
+        /* MODAL STYLING */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 9999; display: none; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; padding: 20px; box-sizing: border-box;}
         .modal-content { background: white; padding: 30px; border-radius: 12px; max-width: 500px; width: 100%; box-shadow: 0 15px 30px rgba(0,0,0,0.5); border-top: 6px solid #f39c12; max-height: 80vh; overflow-y: auto; transform: translateZ(0); }
         .modal-content h3 { margin-top: 0; color: #005c63; font-size: 1.5em; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;}
@@ -163,7 +166,7 @@
 </head>
 <body>
 
-<div class="version-tag">v1.6.14</div>
+<div class="version-tag">v3.1.0</div>
 
 <div class="modal-overlay" id="devPasswordModal">
     <div class="modal-content" style="max-width: 350px; text-align: center; border-top: 6px solid #e74c3c;">
@@ -191,13 +194,13 @@
     <div class="modal-content">
         <h3>🚀 Release Notes</h3>
         <div class="version-block">
-            <h4>v1.6.14 - The Scorecard Update</h4>
+            <h4>v3.1.0 - The Clean Scorecard Update</h4>
             <p style="color: #555; font-size: 0.9em; margin-top: -5px;">Update by Reece:</p>
             <ul>
-                <li><strong>Live Store Scorecard:</strong> Added the read-only Dashboard that syncs directly with Google Sheets every 60 seconds.</li>
-                <li><strong>Average Footfall Added:</strong> Pulls your latest store footfall straight from the Google Sheet and displays it next to the overall score.</li>
-                <li><strong>Blue KPI Fix:</strong> 0-target KPIs no longer randomly upgrade to blue. If a target is genuinely Blue, you will get the new hype message.</li>
-                <li><strong>No Two-Way Updating:</strong> Your personal calculator buttons will no longer send updates to the sheet. The scorecard is strictly read-only for the shop floor!</li>
+                <li><strong>Math Subtraction Fixed:</strong> The app now correctly pulls your total target, subtracts the 'Sold Today' number, and shows the team exactly how many sales are remaining for the day.</li>
+                <li><strong>Live Store Scorecard:</strong> Dashboard now correctly pulls your Average Footfall and stays strictly read-only for the shop floor (no more two-way updating).</li>
+                <li><strong>Light Mode Restored:</strong> Fixed the styling so it seamlessly fits the clean teal EE branding of your calculator.</li>
+                <li><strong>Uncluttered UI:</strong> Weekly Deals and manual Bonus Trackers (NPS, etc.) have been completely removed from the calculator to keep things fast and simple.</li>
             </ul>
         </div>
         <button class="modal-btn" onclick="closeChangelog()">Amazing, thanks!</button>
@@ -318,7 +321,7 @@
     </div>
 
     <div id="tablesContainer">
-        <h2>Personal Commission Breakdown</h2>
+        <h2>Current Performance</h2>
         <div class="table-responsive">
             <table>
                 <thead>
@@ -341,10 +344,10 @@
     <div class="credits">Designed for EE Rhyl by Reece Farrelly</div>
 </div>
 <script>
-    const APP_VERSION = "1.6.14";
+    const APP_VERSION = "3.1.0";
 
     // ⚠️ SCORECARD CONFIG: DO NOT DELETE
-    const SCORECARD_URL = "https://script.google.com/macros/s/AKfycbzrvHOKq0EX-xVQq6IQ-DjiCuFs3Hv2Z1X5cAZjhYEZjJjxMoWR_qqWT2jq2JDKamcQdQ/exec";
+    const SCORECARD_URL = "https://script.google.com/macros/s/AKfycbw4ynJHV0Db9JaayvVx2sfg_OiKBJzkaQ6I9-kwjfPRYI_8GBsYcAPKHn6JbPzjUPzTiw/exec";
 
     const defaultCategories = [
         { name: "NEW HANDSETS", target: 0, achieved: 0 },
@@ -410,31 +413,45 @@
         data.kpis.forEach(kpi => {
             if(!kpi.name) return;
             
-            let remAmber = parseInt(kpi.needAmber) || 0;
-            let remGreen = parseInt(kpi.needGreen) || 0;
-            let remBlue = parseInt(kpi.needBlue) || 0;
+            // MATH FIX: Extract the values and subtract the sold amount to get exactly what is remaining!
+            let sold = parseInt(kpi.soldToday) || 0;
+            let needA = parseInt(kpi.needAmber) || 0;
+            let needG = parseInt(kpi.needGreen) || 0;
+            let needB = parseInt(kpi.needBlue) || 0;
+            
+            let remAmber = needA > 0 ? Math.max(0, needA - sold) : 0;
+            let remGreen = needG > 0 ? Math.max(0, needG - sold) : 0;
+            let remBlue = needB > 0 ? Math.max(0, needB - sold) : 0;
 
-            let isTrackOnly = (remAmber === 0 && remGreen === 0 && remBlue === 0);
+            let isTrackOnly = (needA === 0 && needG === 0 && needB === 0);
             let displayColor = kpi.color;
+
+            // Prevent auto-upgrading to Blue if the targets are 0 (e.g., SR, NPS, COMPL)
+            if (!isTrackOnly) {
+                if (kpi.color === "Red" && remAmber <= 0 && needA > 0) displayColor = "Amber";
+                if ((displayColor === "Red" || displayColor === "Amber") && remGreen <= 0 && needG > 0) displayColor = "Green";
+                if (displayColor !== "Blue" && remBlue <= 0 && needB > 0) displayColor = "Blue";
+            }
 
             let topBorder = scColorMap[displayColor] || "#95a5a6";
             
             gridHtml += `<div class="kpi-badge" style="border-top-color: ${topBorder}">
                 <span class="kpi-name">${kpi.name}</span>`;
             
+            // Render the specific remaining amounts based on current color status
             if (displayColor === "Blue") {
                 gridHtml += `<div class="kpi-blue-win">Keep going to keep this blue! 🟦</div>`;
             } else if (isTrackOnly) {
                  gridHtml += `<div class="kpi-target" style="font-weight:bold; color:${topBorder}; font-size:1em; margin-top:5px;">${displayColor}</div>`;
             } else if (displayColor === "Green") {
-                if(remBlue > 0) gridHtml += `<div class="kpi-target">Need <span style="color:#3498db;">${remBlue}</span> for Blue</div>`;
+                if(needB > 0) gridHtml += `<div class="kpi-target">Need <span style="color:#3498db;">${remBlue}</span> for Blue</div>`;
             } else if (displayColor === "Amber") {
-                if(remGreen > 0) gridHtml += `<div class="kpi-target">Need <span style="color:#27ae60;">${remGreen}</span> for Green</div>`;
-                if(remBlue > 0) gridHtml += `<div class="kpi-target">Need <span style="color:#3498db;">${remBlue}</span> for Blue</div>`;
-            } else { 
-                if(remAmber > 0) gridHtml += `<div class="kpi-target">Need <span style="color:#f39c12;">${remAmber}</span> for Amber</div>`;
-                if(remGreen > 0) gridHtml += `<div class="kpi-target">Need <span style="color:#27ae60;">${remGreen}</span> for Green</div>`;
-                if(remBlue > 0) gridHtml += `<div class="kpi-target">Need <span style="color:#3498db;">${remBlue}</span> for Blue</div>`;
+                if(needG > 0) gridHtml += `<div class="kpi-target">Need <span style="color:#27ae60;">${remGreen}</span> for Green</div>`;
+                if(needB > 0) gridHtml += `<div class="kpi-target">Need <span style="color:#3498db;">${remBlue}</span> for Blue</div>`;
+            } else { // Red
+                if(needA > 0) gridHtml += `<div class="kpi-target">Need <span style="color:#f39c12;">${remAmber}</span> for Amber</div>`;
+                if(needG > 0) gridHtml += `<div class="kpi-target">Need <span style="color:#27ae60;">${remGreen}</span> for Green</div>`;
+                if(needB > 0) gridHtml += `<div class="kpi-target">Need <span style="color:#3498db;">${remBlue}</span> for Blue</div>`;
             }
             gridHtml += `</div>`;
         });
@@ -486,6 +503,7 @@
         if(isDevMode) {
             if(confirm("Disable Developer Mode?")) {
                 isDevMode = false;
+                simulatedDateOffset = 0; 
                 localStorage.removeItem('eeRhylSimOffset');
                 localStorage.removeItem('eeRhylDevMode');
                 alert("Developer Mode Disabled.");
@@ -720,7 +738,7 @@
         if (f === 'achieved' && aInput) { aInput.value = categories[i][f]; } 
         else if (f === 'target' && tInput) { tInput.value = categories[i][f]; }
         
-        // No scorecard updates are sent here as requested!
+        // NO SCORECARD UPDATES ARE SENT HERE AS REQUESTED!
         
         updateData(i, f, categories[i][f]); 
     }
