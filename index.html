@@ -11,17 +11,18 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #009aa6; color: #333; margin: 0; padding: 20px 10px; transition: background-color 0.5s ease; -webkit-tap-highlight-color: transparent; }
         
-        /* HARDWARE ACCELERATION */
+        /* HARDWARE ACCELERATION ON MAIN CONTAINER */
         .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 50, 50, 0.3); border-top: 8px solid #005c63; transition: border-top-color 0.5s ease; position: relative; transform: translateZ(0); -webkit-transform: translateZ(0); will-change: transform; }
         
         .logo-container { text-align: center; margin-bottom: 20px; }
+        
         .code-logo { background-color: #009aa6; width: 85px; height: 85px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; color: #fff000; font-weight: 900; font-size: 38px; letter-spacing: -1px; border: 3px solid #fff000; transition: transform 0.2s ease, background-color 0.5s ease; cursor: pointer; -webkit-tap-highlight-color: transparent; transform: translateZ(0); }
         .code-logo:active { transform: scale(0.95); }
         
         h1 { color: #005c63; text-align: center; margin-bottom: 5px; font-size: 1.8em; }
         h2 { color: #009aa6; margin-bottom: 10px; margin-top: 30px; border-bottom: 2px solid #b2e0e3; padding-bottom: 5px; font-size: 1.3em; }
 
-        /* LIVE SCORECARD UI */
+        /* LIVE SCORECARD UI (LIGHT THEME) */
         .scorecard-container { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 2px solid #b2e0e3; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .scorecard-header { text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #b2e0e3; padding-bottom: 15px; }
         .score-overall { font-size: 4em; font-weight: 900; line-height: 1; margin: 10px 0; color: #333; }
@@ -157,16 +158,13 @@
             h1 { font-size: 1.4em; }
             .action-item { font-size: 0.85em; padding: 5px 8px; }
             .version-tag { font-size: 0.7em; }
-            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
-            .kpi-name { font-size: 0.7em; }
-            .score-overall { font-size: 3em; }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
-<div class="version-tag">v3.1.0</div>
+<div class="version-tag">v1.6.15</div>
 
 <div class="modal-overlay" id="devPasswordModal">
     <div class="modal-content" style="max-width: 350px; text-align: center; border-top: 6px solid #e74c3c;">
@@ -194,13 +192,13 @@
     <div class="modal-content">
         <h3>🚀 Release Notes</h3>
         <div class="version-block">
-            <h4>v3.1.0 - The Clean Scorecard Update</h4>
+            <h4>v1.6.15 - The Scorecard Update</h4>
             <p style="color: #555; font-size: 0.9em; margin-top: -5px;">Update by Reece:</p>
             <ul>
-                <li><strong>Math Subtraction Fixed:</strong> The app now correctly pulls your total target, subtracts the 'Sold Today' number, and shows the team exactly how many sales are remaining for the day.</li>
-                <li><strong>Live Store Scorecard:</strong> Dashboard now correctly pulls your Average Footfall and stays strictly read-only for the shop floor (no more two-way updating).</li>
-                <li><strong>Light Mode Restored:</strong> Fixed the styling so it seamlessly fits the clean teal EE branding of your calculator.</li>
-                <li><strong>Uncluttered UI:</strong> Weekly Deals and manual Bonus Trackers (NPS, etc.) have been completely removed from the calculator to keep things fast and simple.</li>
+                <li><strong>Live Store Scorecard:</strong> Added the read-only Dashboard that syncs directly with Google Sheets every 60 seconds.</li>
+                <li><strong>Average Footfall Added:</strong> Pulls your latest store footfall straight from the Google Sheet and displays it next to the overall score.</li>
+                <li><strong>Scorecard Progress Graph:</strong> A visual gradient bar has been added below the Overall Score. As your score climbs, an indicator arrow will map exactly where the store is currently tracking between Red, Amber, Green, and Blue.</li>
+                <li><strong>No Two-Way Updating:</strong> Your personal calculator buttons will no longer send updates to the sheet. The scorecard is strictly read-only for the shop floor!</li>
             </ul>
         </div>
         <button class="modal-btn" onclick="closeChangelog()">Amazing, thanks!</button>
@@ -234,6 +232,19 @@
                     <div id="sc-footfall" style="font-size: 2em; font-weight: bold; color: #009aa6; line-height: 1.2;">--</div>
                 </div>
             </div>
+            
+            <div style="position: relative; width: 100%; max-width: 400px; margin: 30px auto 10px auto;">
+                <div id="sc-arrow" style="position: absolute; top: -18px; left: 0%; transform: translateX(-50%); font-size: 20px; color: #e74c3c; transition: left 1s ease-out, color 1s ease-out; z-index: 10;">▼</div>
+                <div style="height: 12px; width: 100%; border-radius: 6px; background: linear-gradient(to right, #e74c3c 0%, #e74c3c 51.9%, #f39c12 52%, #f39c12 68.6%, #27ae60 68.75%, #27ae60 87.4%, #3498db 87.5%, #3498db 100%);"></div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.7em; color: #7f8c8d; margin-top: 5px; font-weight: bold; position: relative; height: 15px;">
+                    <span style="position:absolute; left:0%;">0.0</span>
+                    <span style="position:absolute; left:52%; transform:translateX(-50%);">2.08</span>
+                    <span style="position:absolute; left:68.75%; transform:translateX(-50%);">2.75</span>
+                    <span style="position:absolute; left:87.5%; transform:translateX(-50%);">3.50</span>
+                    <span style="position:absolute; right:0%;">4.00</span>
+                </div>
+            </div>
+
             <div style="font-size:0.85em; color:#7f8c8d; font-weight:bold; margin-top: 15px;" id="sc-last-sync">Syncing...</div>
         </div>
         <div class="kpi-grid" id="sc-kpi-grid">
@@ -344,7 +355,7 @@
     <div class="credits">Designed for EE Rhyl by Reece Farrelly</div>
 </div>
 <script>
-    const APP_VERSION = "3.1.0";
+    const APP_VERSION = "1.6.15";
 
     // ⚠️ SCORECARD CONFIG: DO NOT DELETE
     const SCORECARD_URL = "https://script.google.com/macros/s/AKfycbw4ynJHV0Db9JaayvVx2sfg_OiKBJzkaQ6I9-kwjfPRYI_8GBsYcAPKHn6JbPzjUPzTiw/exec";
@@ -396,6 +407,20 @@
         
         overallEl.className = 'score-overall';
         if(data.overallColor) overallEl.classList.add('color-' + data.overallColor.toLowerCase());
+
+        // Update the Progress Graph Arrow
+        if (!isNaN(scoreVal)) {
+            let percent = (scoreVal / 4.0) * 100;
+            percent = Math.max(0, Math.min(100, percent));
+            let arrow = document.getElementById('sc-arrow');
+            if (arrow) {
+                arrow.style.left = percent + '%';
+                if(scoreVal >= 3.50) arrow.style.color = '#3498db';
+                else if(scoreVal >= 2.75) arrow.style.color = '#27ae60';
+                else if(scoreVal >= 2.08) arrow.style.color = '#f39c12';
+                else arrow.style.color = '#e74c3c';
+            }
+        }
 
         let footfallEl = document.getElementById('sc-footfall');
         if (footfallEl) {
@@ -738,7 +763,7 @@
         if (f === 'achieved' && aInput) { aInput.value = categories[i][f]; } 
         else if (f === 'target' && tInput) { tInput.value = categories[i][f]; }
         
-        // NO SCORECARD UPDATES ARE SENT HERE AS REQUESTED!
+        // No scorecard updates are sent here as requested!
         
         updateData(i, f, categories[i][f]); 
     }
