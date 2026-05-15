@@ -204,13 +204,14 @@
             .kpi-grid { grid-template-columns: repeat(3, 1fr); }
             .kpi-name { font-size: 0.7em; }
             .score-overall { font-size: 3em; }
+            .track-node { font-size: 0.85em; padding: 6px 10px; }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
-<div class="version-tag">v3.1.0</div>
+<div class="version-tag">v1.6.18</div>
 
 <div class="modal-overlay" id="devPasswordModal">
     <div class="modal-content" style="max-width: 350px; text-align: center; border-top: 6px solid #e74c3c;">
@@ -238,10 +239,11 @@
     <div class="modal-content">
         <h3>🚀 Release Notes</h3>
         <div class="version-block">
-            <h4>v3.1.0 - The Clean Scorecard Update</h4>
+            <h4>v1.6.18 - The Progress Track Update</h4>
             <p style="color: #555; font-size: 0.9em; margin-top: -5px;">Update by Reece:</p>
             <ul>
-                <li><strong>Live Number Track:</strong> Added a scrolling progress track beneath the Overall Score. It maps every score tier, and automatically highlights exactly where you are sitting on the line!</li>
+                <li><strong>Dynamic Number Track:</strong> Added a scrolling progress track beneath the Overall Score. It maps every score tier, and automatically highlights exactly where you are sitting on the line!</li>
+                <li><strong>Scorecard Upgrade Animation:</strong> The app now remembers your store's score. If your Overall Score bumps up to the next tier (e.g. Amber to Green), you'll trigger a massive confetti explosion across the screen!</li>
                 <li><strong>Average Footfall Added:</strong> Pulls your latest store footfall straight from the Google Sheet and displays it next to the overall score.</li>
                 <li><strong>Math Subtraction Fixed:</strong> The app accurately takes the "Total Required" and subtracts the "Sold Today" to display exactly what is left.</li>
                 <li><strong>No Two-Way Updating:</strong> Your personal calculator buttons will no longer send updates to the sheet. The scorecard is strictly read-only for the shop floor!</li>
@@ -394,10 +396,10 @@
     <div class="credits">Designed for EE Rhyl by Reece Farrelly</div>
 </div>
 <script>
-    const APP_VERSION = "3.1.0";
+    const APP_VERSION = "1.6.18";
 
-    // ⚠️ PASTE YOUR NEW DEPLOYMENT URL HERE!
-    const SCORECARD_URL = "https://script.google.com/macros/s/AKfycbzrvHOKq0EX-xVQq6IQ-DjiCuFs3Hv2Z1X5cAZjhYEZjJjxMoWR_qqWT2jq2JDKamcQdQ/exec";
+    // ⚠️ YOUR EXACT SCORECARD URL IS RESTORED HERE!
+    const SCORECARD_URL = "https://script.google.com/macros/s/AKfycbw4ynJHV0Db9JaayvVx2sfg_OiKBJzkaQ6I9-kwjfPRYI_8GBsYcAPKHn6JbPzjUPzTiw/exec";
 
     const defaultCategories = [
         { name: "NEW HANDSETS", target: 0, achieved: 0 },
@@ -426,6 +428,7 @@
     
     let lastKnownStoreColor = null;
     
+    // Exact threshold numbers provided by user
     const trackVals = [
         {v: 2.08, c: 'amber'}, {v: 2.17, c: 'amber'}, {v: 2.25, c: 'amber'}, {v: 2.33, c: 'amber'}, {v: 2.42, c: 'amber'}, {v: 2.50, c: 'amber'}, {v: 2.58, c: 'amber'}, {v: 2.67, c: 'amber'},
         {v: 2.75, c: 'green'}, {v: 2.83, c: 'green'}, {v: 2.92, c: 'green'}, {v: 3.00, c: 'green'}, {v: 3.08, c: 'green'}, {v: 3.17, c: 'green'}, {v: 3.25, c: 'green'}, {v: 3.33, c: 'green'}, {v: 3.42, c: 'green'},
@@ -433,7 +436,7 @@
     ];
 
     function fetchScorecard() {
-        if (!SCORECARD_URL || SCORECARD_URL === "YOUR_SCRIPT_URL_HERE") return;
+        if (!SCORECARD_URL) return;
         let oldScript = document.getElementById('scorecard-jsonp');
         if (oldScript) oldScript.remove();
         let script = document.createElement('script');
@@ -456,14 +459,16 @@
         overallEl.className = 'score-overall';
         if(currentColorStr) overallEl.classList.add('color-' + currentColorStr.toLowerCase());
 
+        // ANIMATION LOGIC: Did the store level up?
         if (lastKnownStoreColor && lastKnownStoreColor !== currentColorStr) {
             let tiers = { "Red": 1, "Amber": 2, "Green": 3, "Blue": 4 };
             if (tiers[currentColorStr] > tiers[lastKnownStoreColor]) {
-                fireMoneyRain();
+                fireMoneyRain(); // Tier Upgraded! Fire massive confetti!
             }
         }
         lastKnownStoreColor = currentColorStr;
 
+        // Update the Progress Number Track
         let trackHtml = '';
         let closestIdx = 0;
         let minDiff = Infinity;
@@ -491,6 +496,7 @@
             }, 300);
         }
 
+        // Footfall update
         let footfallEl = document.getElementById('sc-footfall');
         if (footfallEl) {
             if (data.footfall !== undefined && data.footfall !== null && data.footfall !== "") {
@@ -520,11 +526,19 @@
             let isTrackOnly = (needA === 0 && needG === 0 && needB === 0);
             let displayColor = kpi.color;
 
+            // Prevent auto-upgrading to Blue if the targets are 0 (e.g., SR, NPS, COMPL)
+            if (!isTrackOnly) {
+                if (kpi.color === "Red" && remAmber <= 0 && needA > 0) displayColor = "Amber";
+                if ((displayColor === "Red" || displayColor === "Amber") && remGreen <= 0 && needG > 0) displayColor = "Green";
+                if (displayColor !== "Blue" && remBlue <= 0 && needB > 0) displayColor = "Blue";
+            }
+
             let topBorder = scColorMap[displayColor] || "#95a5a6";
             
             gridHtml += `<div class="kpi-badge" style="border-top-color: ${topBorder}">
                 <span class="kpi-name">${kpi.name}</span>`;
             
+            // Render the specific remaining amounts based on current color status
             if (displayColor === "Blue") {
                 gridHtml += `<div class="kpi-blue-win">Keep going to keep this blue! 🟦</div>`;
             } else if (isTrackOnly) {
@@ -545,6 +559,7 @@
         document.getElementById('sc-kpi-grid').innerHTML = gridHtml;
     }
 
+    // Polling heartbeat
     setInterval(fetchScorecard, 60000); 
     setTimeout(fetchScorecard, 1000); 
     // --- END SCORECARD ENGINE ---
@@ -821,6 +836,8 @@
         
         if (f === 'achieved' && aInput) { aInput.value = categories[i][f]; } 
         else if (f === 'target' && tInput) { tInput.value = categories[i][f]; }
+        
+        // No scorecard updates are sent here as requested!
         
         updateData(i, f, categories[i][f]); 
     }
