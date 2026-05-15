@@ -22,12 +22,19 @@
         h1 { color: #005c63; text-align: center; margin-bottom: 5px; font-size: 1.8em; }
         h2 { color: #009aa6; margin-bottom: 10px; margin-top: 30px; border-bottom: 2px solid #b2e0e3; padding-bottom: 5px; font-size: 1.3em; }
 
-        /* LIVE SCORECARD UI (LIGHT THEME) */
+        /* LIVE SCORECARD UI */
         .scorecard-container { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 2px solid #b2e0e3; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .scorecard-header { text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #b2e0e3; padding-bottom: 15px; }
         .score-overall { font-size: 4em; font-weight: 900; line-height: 1; margin: 10px 0; color: #333; }
         .score-overall.color-red { color: #e74c3c; } .score-overall.color-amber { color: #f39c12; } .score-overall.color-green { color: #27ae60; } .score-overall.color-blue { color: #3498db; }
         
+        /* SCORE TRACKER BADGES */
+        .track-node { background-color: #bdc3c7; color: white; padding: 5px 8px; border-radius: 6px; font-size: 0.8em; font-weight: bold; transition: all 0.3s ease; opacity: 0.4; }
+        .track-node.amber { background-color: #f39c12; }
+        .track-node.green { background-color: #27ae60; }
+        .track-node.blue { background-color: #3498db; }
+        .track-node.active { opacity: 1; transform: scale(1.3); z-index: 10; border: 2px solid #333; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
         .kpi-badge { background: #f2fafa; border-radius: 8px; padding: 12px 8px; text-align: center; border-top: 4px solid #7f8c8d; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: #333; }
         .kpi-name { font-weight: bold; font-size: 0.8em; color: #005c63; margin-bottom: 8px; display: block; letter-spacing: 0.5px; text-transform: uppercase; }
@@ -158,13 +165,17 @@
             h1 { font-size: 1.4em; }
             .action-item { font-size: 0.85em; padding: 5px 8px; }
             .version-tag { font-size: 0.7em; }
+            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+            .kpi-name { font-size: 0.7em; }
+            .score-overall { font-size: 3em; }
+            .track-node { padding: 4px 6px; font-size: 0.7em; }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
-<div class="version-tag">v1.6.15</div>
+<div class="version-tag">v1.6.16</div>
 
 <div class="modal-overlay" id="devPasswordModal">
     <div class="modal-content" style="max-width: 350px; text-align: center; border-top: 6px solid #e74c3c;">
@@ -192,12 +203,12 @@
     <div class="modal-content">
         <h3>🚀 Release Notes</h3>
         <div class="version-block">
-            <h4>v1.6.15 - The Scorecard Update</h4>
+            <h4>v1.6.16 - The Numbers Update</h4>
             <p style="color: #555; font-size: 0.9em; margin-top: -5px;">Update by Reece:</p>
             <ul>
-                <li><strong>Live Store Scorecard:</strong> Added the read-only Dashboard that syncs directly with Google Sheets every 60 seconds.</li>
+                <li><strong>Live Number Track:</strong> Added a visual track containing every single target number. The system will automatically highlight the target you are currently sitting at!</li>
                 <li><strong>Average Footfall Added:</strong> Pulls your latest store footfall straight from the Google Sheet and displays it next to the overall score.</li>
-                <li><strong>Scorecard Progress Graph:</strong> A visual gradient bar has been added below the Overall Score. As your score climbs, an indicator arrow will map exactly where the store is currently tracking between Red, Amber, Green, and Blue.</li>
+                <li><strong>Math Subtraction Fixed:</strong> The app accurately takes the "Total Required" and subtracts the "Sold Today" to display exactly what is left.</li>
                 <li><strong>No Two-Way Updating:</strong> Your personal calculator buttons will no longer send updates to the sheet. The scorecard is strictly read-only for the shop floor!</li>
             </ul>
         </div>
@@ -233,17 +244,8 @@
                 </div>
             </div>
             
-            <div style="position: relative; width: 100%; max-width: 400px; margin: 30px auto 10px auto;">
-                <div id="sc-arrow" style="position: absolute; top: -18px; left: 0%; transform: translateX(-50%); font-size: 20px; color: #e74c3c; transition: left 1s ease-out, color 1s ease-out; z-index: 10;">▼</div>
-                <div style="height: 12px; width: 100%; border-radius: 6px; background: linear-gradient(to right, #e74c3c 0%, #e74c3c 51.9%, #f39c12 52%, #f39c12 68.6%, #27ae60 68.75%, #27ae60 87.4%, #3498db 87.5%, #3498db 100%);"></div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.7em; color: #7f8c8d; margin-top: 5px; font-weight: bold; position: relative; height: 15px;">
-                    <span style="position:absolute; left:0%;">0.0</span>
-                    <span style="position:absolute; left:52%; transform:translateX(-50%);">2.08</span>
-                    <span style="position:absolute; left:68.75%; transform:translateX(-50%);">2.75</span>
-                    <span style="position:absolute; left:87.5%; transform:translateX(-50%);">3.50</span>
-                    <span style="position:absolute; right:0%;">4.00</span>
+            <div id="score-track-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin: 25px 0 10px 0;">
                 </div>
-            </div>
 
             <div style="font-size:0.85em; color:#7f8c8d; font-weight:bold; margin-top: 15px;" id="sc-last-sync">Syncing...</div>
         </div>
@@ -355,7 +357,7 @@
     <div class="credits">Designed for EE Rhyl by Reece Farrelly</div>
 </div>
 <script>
-    const APP_VERSION = "1.6.15";
+    const APP_VERSION = "1.6.16";
 
     // ⚠️ SCORECARD CONFIG: DO NOT DELETE
     const SCORECARD_URL = "https://script.google.com/macros/s/AKfycbw4ynJHV0Db9JaayvVx2sfg_OiKBJzkaQ6I9-kwjfPRYI_8GBsYcAPKHn6JbPzjUPzTiw/exec";
@@ -384,6 +386,13 @@
 
     // --- SCORECARD ENGINE (READ ONLY) ---
     const scColorMap = { "Red": "#e74c3c", "Amber": "#f39c12", "Green": "#27ae60", "Blue": "#3498db" };
+    
+    // Exact threshold numbers provided by user
+    const trackVals = [
+        {v: 2.08, c: 'amber'}, {v: 2.17, c: 'amber'}, {v: 2.25, c: 'amber'}, {v: 2.33, c: 'amber'}, {v: 2.42, c: 'amber'}, {v: 2.50, c: 'amber'}, {v: 2.58, c: 'amber'}, {v: 2.67, c: 'amber'},
+        {v: 2.75, c: 'green'}, {v: 2.83, c: 'green'}, {v: 2.92, c: 'green'}, {v: 3.00, c: 'green'}, {v: 3.08, c: 'green'}, {v: 3.17, c: 'green'}, {v: 3.25, c: 'green'}, {v: 3.33, c: 'green'}, {v: 3.42, c: 'green'},
+        {v: 3.50, c: 'blue'}, {v: 3.58, c: 'blue'}, {v: 3.67, c: 'blue'}, {v: 3.75, c: 'blue'}, {v: 3.83, c: 'blue'}, {v: 3.92, c: 'blue'}, {v: 4.00, c: 'blue'}
+    ];
 
     function fetchScorecard() {
         if (!SCORECARD_URL) return;
@@ -408,20 +417,25 @@
         overallEl.className = 'score-overall';
         if(data.overallColor) overallEl.classList.add('color-' + data.overallColor.toLowerCase());
 
-        // Update the Progress Graph Arrow
+        // Update the Progress Number Track
+        let trackHtml = '';
+        let closestIdx = 0;
+        let minDiff = Infinity;
+        
         if (!isNaN(scoreVal)) {
-            let percent = (scoreVal / 4.0) * 100;
-            percent = Math.max(0, Math.min(100, percent));
-            let arrow = document.getElementById('sc-arrow');
-            if (arrow) {
-                arrow.style.left = percent + '%';
-                if(scoreVal >= 3.50) arrow.style.color = '#3498db';
-                else if(scoreVal >= 2.75) arrow.style.color = '#27ae60';
-                else if(scoreVal >= 2.08) arrow.style.color = '#f39c12';
-                else arrow.style.color = '#e74c3c';
+            for(let i=0; i<trackVals.length; i++) {
+                let diff = Math.abs(scoreVal - trackVals[i].v);
+                if (diff < minDiff) { minDiff = diff; closestIdx = i; }
             }
         }
+        
+        for(let i=0; i<trackVals.length; i++) {
+            let isActive = (!isNaN(scoreVal) && i === closestIdx) ? 'active' : '';
+            trackHtml += `<div class="track-node ${trackVals[i].c} ${isActive}">${trackVals[i].v.toFixed(2)}</div>`;
+        }
+        document.getElementById('score-track-container').innerHTML = trackHtml;
 
+        // Footfall update
         let footfallEl = document.getElementById('sc-footfall');
         if (footfallEl) {
             if (data.footfall !== undefined && data.footfall !== null && data.footfall !== "") {
