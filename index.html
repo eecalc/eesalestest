@@ -29,11 +29,17 @@
         .score-overall.color-red { color: #e74c3c; } .score-overall.color-amber { color: #f39c12; } .score-overall.color-green { color: #27ae60; } .score-overall.color-blue { color: #3498db; }
         
         /* SCORE TRACKER BADGES */
-        .track-node { background-color: #bdc3c7; color: white; padding: 5px 8px; border-radius: 6px; font-size: 0.8em; font-weight: bold; transition: all 0.3s ease; opacity: 0.4; }
+        .score-track-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 15px; margin: 25px 0 10px 0; }
+        /* Hide scrollbar for a cleaner look */
+        .score-track-wrapper::-webkit-scrollbar { display: none; }
+        .score-track-wrapper { -ms-overflow-style: none; scrollbar-width: none; }
+
+        #score-track-container { display: inline-flex; flex-wrap: nowrap; justify-content: center; gap: 4px; margin: 0 auto; min-width: max-content; }
+        .track-node { background-color: #bdc3c7; color: white; padding: 6px 8px; border-radius: 6px; font-size: 0.85em; font-weight: bold; transition: all 0.3s ease; opacity: 0.4; }
         .track-node.amber { background-color: #f39c12; }
         .track-node.green { background-color: #27ae60; }
         .track-node.blue { background-color: #3498db; }
-        .track-node.active { opacity: 1; transform: scale(1.3); z-index: 10; border: 2px solid #333; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .track-node.active { opacity: 1; transform: scale(1.2); z-index: 10; border: 2px solid #333; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
 
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
         .kpi-badge { background: #f2fafa; border-radius: 8px; padding: 12px 8px; text-align: center; border-top: 4px solid #7f8c8d; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: #333; }
@@ -168,14 +174,14 @@
             .kpi-grid { grid-template-columns: repeat(3, 1fr); }
             .kpi-name { font-size: 0.7em; }
             .score-overall { font-size: 3em; }
-            .track-node { padding: 4px 6px; font-size: 0.7em; }
+            .track-node { font-size: 0.75em; padding: 5px 6px; }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
-<div class="version-tag">v1.6.16</div>
+<div class="version-tag">v1.6.17</div>
 
 <div class="modal-overlay" id="devPasswordModal">
     <div class="modal-content" style="max-width: 350px; text-align: center; border-top: 6px solid #e74c3c;">
@@ -203,10 +209,11 @@
     <div class="modal-content">
         <h3>🚀 Release Notes</h3>
         <div class="version-block">
-            <h4>v1.6.16 - The Numbers Update</h4>
+            <h4>v1.6.17 - Animation & Progress Track Update</h4>
             <p style="color: #555; font-size: 0.9em; margin-top: -5px;">Update by Reece:</p>
             <ul>
-                <li><strong>Live Number Track:</strong> Added a visual track containing every single target number. The system will automatically highlight the target you are currently sitting at!</li>
+                <li><strong>Dynamic Number Track:</strong> Added a scrolling progress track beneath the Overall Score. It maps every score tier, and automatically highlights exactly where you are sitting on the line!</li>
+                <li><strong>Scorecard Upgrade Animation:</strong> The app now remembers your store's score. If your Overall Score bumps up to the next tier (e.g. Amber to Green), you'll trigger a massive confetti explosion across the screen!</li>
                 <li><strong>Average Footfall Added:</strong> Pulls your latest store footfall straight from the Google Sheet and displays it next to the overall score.</li>
                 <li><strong>Math Subtraction Fixed:</strong> The app accurately takes the "Total Required" and subtracts the "Sold Today" to display exactly what is left.</li>
                 <li><strong>No Two-Way Updating:</strong> Your personal calculator buttons will no longer send updates to the sheet. The scorecard is strictly read-only for the shop floor!</li>
@@ -244,8 +251,10 @@
                 </div>
             </div>
             
-            <div id="score-track-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin: 25px 0 10px 0;">
-                </div>
+            <div class="score-track-wrapper">
+                <div id="score-track-container">
+                    </div>
+            </div>
 
             <div style="font-size:0.85em; color:#7f8c8d; font-weight:bold; margin-top: 15px;" id="sc-last-sync">Syncing...</div>
         </div>
@@ -357,10 +366,10 @@
     <div class="credits">Designed for EE Rhyl by Reece Farrelly</div>
 </div>
 <script>
-    const APP_VERSION = "1.6.16";
+    const APP_VERSION = "1.6.17";
 
     // ⚠️ SCORECARD CONFIG: DO NOT DELETE
-    const SCORECARD_URL = "https://script.google.com/macros/s/AKfycbzrvHOKq0EX-xVQq6IQ-DjiCuFs3Hv2Z1X5cAZjhYEZjJjxMoWR_qqWT2jq2JDKamcQdQ/exec";
+    const SCORECARD_URL = "https://script.google.com/macros/s/AKfycbw4ynJHV0Db9JaayvVx2sfg_OiKBJzkaQ6I9-kwjfPRYI_8GBsYcAPKHn6JbPzjUPzTiw/exec";
 
     const defaultCategories = [
         { name: "NEW HANDSETS", target: 0, achieved: 0 },
@@ -386,6 +395,9 @@
 
     // --- SCORECARD ENGINE (READ ONLY) ---
     const scColorMap = { "Red": "#e74c3c", "Amber": "#f39c12", "Green": "#27ae60", "Blue": "#3498db" };
+    
+    // Store overall color memory for animations
+    let lastKnownStoreColor = null;
     
     // Exact threshold numbers provided by user
     const trackVals = [
@@ -414,8 +426,19 @@
         let scoreVal = parseFloat(data.overallScore);
         overallEl.innerText = isNaN(scoreVal) ? data.overallScore : scoreVal.toFixed(2);
         
+        let currentColorStr = data.overallColor ? data.overallColor.charAt(0).toUpperCase() + data.overallColor.slice(1).toLowerCase() : "";
         overallEl.className = 'score-overall';
-        if(data.overallColor) overallEl.classList.add('color-' + data.overallColor.toLowerCase());
+        if(currentColorStr) overallEl.classList.add('color-' + currentColorStr.toLowerCase());
+
+        // ANIMATION LOGIC: Did the store level up?
+        if (lastKnownStoreColor && lastKnownStoreColor !== currentColorStr) {
+            let tiers = { "Red": 1, "Amber": 2, "Green": 3, "Blue": 4 };
+            if (tiers[currentColorStr] > tiers[lastKnownStoreColor]) {
+                // Tier Upgraded! Fire massive confetti!
+                fireMoneyRain();
+            }
+        }
+        lastKnownStoreColor = currentColorStr;
 
         // Update the Progress Number Track
         let trackHtml = '';
@@ -433,9 +456,16 @@
             let isActive = (!isNaN(scoreVal) && i === closestIdx) ? 'active' : '';
             trackHtml += `<div class="track-node ${trackVals[i].c} ${isActive}">${trackVals[i].v.toFixed(2)}</div>`;
         }
-        document.getElementById('score-track-container').innerHTML = trackHtml;
+        let trackContainer = document.getElementById('score-track-container');
+        if (trackContainer) {
+            trackContainer.innerHTML = trackHtml;
+            // Auto-scroll the active node to the middle
+            let activeNode = trackContainer.querySelector('.active');
+            if (activeNode) {
+                activeNode.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
+        }
 
-        // Footfall update
         let footfallEl = document.getElementById('sc-footfall');
         if (footfallEl) {
             if (data.footfall !== undefined && data.footfall !== null && data.footfall !== "") {
@@ -776,8 +806,6 @@
         
         if (f === 'achieved' && aInput) { aInput.value = categories[i][f]; } 
         else if (f === 'target' && tInput) { tInput.value = categories[i][f]; }
-        
-        // No scorecard updates are sent here as requested!
         
         updateData(i, f, categories[i][f]); 
     }
