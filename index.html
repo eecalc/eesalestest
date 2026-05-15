@@ -22,24 +22,54 @@
         h1 { color: #005c63; text-align: center; margin-bottom: 5px; font-size: 1.8em; }
         h2 { color: #009aa6; margin-bottom: 10px; margin-top: 30px; border-bottom: 2px solid #b2e0e3; padding-bottom: 5px; font-size: 1.3em; }
 
-        /* LIVE SCORECARD UI */
+        /* LIVE SCORECARD UI (LIGHT THEME) */
         .scorecard-container { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 2px solid #b2e0e3; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .scorecard-header { text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #b2e0e3; padding-bottom: 15px; }
         .score-overall { font-size: 4em; font-weight: 900; line-height: 1; margin: 10px 0; color: #333; }
         .score-overall.color-red { color: #e74c3c; } .score-overall.color-amber { color: #f39c12; } .score-overall.color-green { color: #27ae60; } .score-overall.color-blue { color: #3498db; }
         
-        /* SCORE TRACKER BADGES */
-        .score-track-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 15px; margin: 25px 0 10px 0; }
-        /* Hide scrollbar for a cleaner look */
-        .score-track-wrapper::-webkit-scrollbar { display: none; }
-        .score-track-wrapper { -ms-overflow-style: none; scrollbar-width: none; }
-
-        #score-track-container { display: inline-flex; flex-wrap: nowrap; justify-content: center; gap: 4px; margin: 0 auto; min-width: max-content; }
-        .track-node { background-color: #bdc3c7; color: white; padding: 6px 8px; border-radius: 6px; font-size: 0.85em; font-weight: bold; transition: all 0.3s ease; opacity: 0.4; }
+        /* SCORE TRACKER BADGES - FIXED CSS FOR PERFECT HORIZONTAL SCROLL */
+        .score-track-wrapper { 
+            width: calc(100% + 40px); /* Bleeds perfectly to the edges of the padding */
+            margin: 25px -20px 10px -20px; 
+            padding: 5px 20px; 
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch; 
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
+        .score-track-wrapper::-webkit-scrollbar { display: none; } /* Chrome, Safari */
+        
+        #score-track-container { 
+            display: inline-flex; 
+            flex-wrap: nowrap; 
+            justify-content: flex-start; /* Prevents the left-side cutoff bug */
+            gap: 6px; 
+            min-width: max-content; 
+        }
+        
+        .track-node { 
+            background-color: #bdc3c7; 
+            color: white; 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            font-size: 0.9em; 
+            font-weight: bold; 
+            transition: all 0.3s ease; 
+            opacity: 0.4; 
+            flex-shrink: 0; /* Prevents boxes from squishing on small screens */
+        }
         .track-node.amber { background-color: #f39c12; }
         .track-node.green { background-color: #27ae60; }
         .track-node.blue { background-color: #3498db; }
-        .track-node.active { opacity: 1; transform: scale(1.2); z-index: 10; border: 2px solid #333; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .track-node.active { 
+            opacity: 1; 
+            transform: scale(1.15); 
+            z-index: 10; 
+            border: 2px solid #333; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3); 
+            margin: 0 5px;
+        }
 
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
         .kpi-badge { background: #f2fafa; border-radius: 8px; padding: 12px 8px; text-align: center; border-top: 4px solid #7f8c8d; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: #333; }
@@ -174,14 +204,13 @@
             .kpi-grid { grid-template-columns: repeat(3, 1fr); }
             .kpi-name { font-size: 0.7em; }
             .score-overall { font-size: 3em; }
-            .track-node { font-size: 0.75em; padding: 5px 6px; }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
-<div class="version-tag">v1.6.17</div>
+<div class="version-tag">v3.1.0</div>
 
 <div class="modal-overlay" id="devPasswordModal">
     <div class="modal-content" style="max-width: 350px; text-align: center; border-top: 6px solid #e74c3c;">
@@ -209,11 +238,10 @@
     <div class="modal-content">
         <h3>🚀 Release Notes</h3>
         <div class="version-block">
-            <h4>v1.6.17 - Animation & Progress Track Update</h4>
+            <h4>v3.1.0 - The Clean Scorecard Update</h4>
             <p style="color: #555; font-size: 0.9em; margin-top: -5px;">Update by Reece:</p>
             <ul>
-                <li><strong>Dynamic Number Track:</strong> Added a scrolling progress track beneath the Overall Score. It maps every score tier, and automatically highlights exactly where you are sitting on the line!</li>
-                <li><strong>Scorecard Upgrade Animation:</strong> The app now remembers your store's score. If your Overall Score bumps up to the next tier (e.g. Amber to Green), you'll trigger a massive confetti explosion across the screen!</li>
+                <li><strong>Live Number Track:</strong> Added a scrolling progress track beneath the Overall Score. It maps every score tier, and automatically highlights exactly where you are sitting on the line!</li>
                 <li><strong>Average Footfall Added:</strong> Pulls your latest store footfall straight from the Google Sheet and displays it next to the overall score.</li>
                 <li><strong>Math Subtraction Fixed:</strong> The app accurately takes the "Total Required" and subtracts the "Sold Today" to display exactly what is left.</li>
                 <li><strong>No Two-Way Updating:</strong> Your personal calculator buttons will no longer send updates to the sheet. The scorecard is strictly read-only for the shop floor!</li>
@@ -366,10 +394,10 @@
     <div class="credits">Designed for EE Rhyl by Reece Farrelly</div>
 </div>
 <script>
-    const APP_VERSION = "1.6.17";
+    const APP_VERSION = "3.1.0";
 
-    // ⚠️ SCORECARD CONFIG: DO NOT DELETE
-    const SCORECARD_URL = "https://script.google.com/macros/s/AKfycbw4ynJHV0Db9JaayvVx2sfg_OiKBJzkaQ6I9-kwjfPRYI_8GBsYcAPKHn6JbPzjUPzTiw/exec";
+    // ⚠️ PASTE YOUR NEW DEPLOYMENT URL HERE!
+    const SCORECARD_URL = "https://script.google.com/macros/s/YOUR_NEW_URL_HERE/exec";
 
     const defaultCategories = [
         { name: "NEW HANDSETS", target: 0, achieved: 0 },
@@ -396,10 +424,8 @@
     // --- SCORECARD ENGINE (READ ONLY) ---
     const scColorMap = { "Red": "#e74c3c", "Amber": "#f39c12", "Green": "#27ae60", "Blue": "#3498db" };
     
-    // Store overall color memory for animations
     let lastKnownStoreColor = null;
     
-    // Exact threshold numbers provided by user
     const trackVals = [
         {v: 2.08, c: 'amber'}, {v: 2.17, c: 'amber'}, {v: 2.25, c: 'amber'}, {v: 2.33, c: 'amber'}, {v: 2.42, c: 'amber'}, {v: 2.50, c: 'amber'}, {v: 2.58, c: 'amber'}, {v: 2.67, c: 'amber'},
         {v: 2.75, c: 'green'}, {v: 2.83, c: 'green'}, {v: 2.92, c: 'green'}, {v: 3.00, c: 'green'}, {v: 3.08, c: 'green'}, {v: 3.17, c: 'green'}, {v: 3.25, c: 'green'}, {v: 3.33, c: 'green'}, {v: 3.42, c: 'green'},
@@ -407,7 +433,7 @@
     ];
 
     function fetchScorecard() {
-        if (!SCORECARD_URL) return;
+        if (!SCORECARD_URL || SCORECARD_URL === "YOUR_SCRIPT_URL_HERE") return;
         let oldScript = document.getElementById('scorecard-jsonp');
         if (oldScript) oldScript.remove();
         let script = document.createElement('script');
@@ -430,17 +456,14 @@
         overallEl.className = 'score-overall';
         if(currentColorStr) overallEl.classList.add('color-' + currentColorStr.toLowerCase());
 
-        // ANIMATION LOGIC: Did the store level up?
         if (lastKnownStoreColor && lastKnownStoreColor !== currentColorStr) {
             let tiers = { "Red": 1, "Amber": 2, "Green": 3, "Blue": 4 };
             if (tiers[currentColorStr] > tiers[lastKnownStoreColor]) {
-                // Tier Upgraded! Fire massive confetti!
                 fireMoneyRain();
             }
         }
         lastKnownStoreColor = currentColorStr;
 
-        // Update the Progress Number Track
         let trackHtml = '';
         let closestIdx = 0;
         let minDiff = Infinity;
@@ -456,14 +479,16 @@
             let isActive = (!isNaN(scoreVal) && i === closestIdx) ? 'active' : '';
             trackHtml += `<div class="track-node ${trackVals[i].c} ${isActive}">${trackVals[i].v.toFixed(2)}</div>`;
         }
+        
         let trackContainer = document.getElementById('score-track-container');
         if (trackContainer) {
             trackContainer.innerHTML = trackHtml;
-            // Auto-scroll the active node to the middle
-            let activeNode = trackContainer.querySelector('.active');
-            if (activeNode) {
-                activeNode.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-            }
+            setTimeout(() => {
+                let activeNode = trackContainer.querySelector('.active');
+                if (activeNode) {
+                    activeNode.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
+            }, 300);
         }
 
         let footfallEl = document.getElementById('sc-footfall');
@@ -495,19 +520,11 @@
             let isTrackOnly = (needA === 0 && needG === 0 && needB === 0);
             let displayColor = kpi.color;
 
-            // Prevent auto-upgrading to Blue if the targets are 0 (e.g., SR, NPS, COMPL)
-            if (!isTrackOnly) {
-                if (kpi.color === "Red" && remAmber <= 0 && needA > 0) displayColor = "Amber";
-                if ((displayColor === "Red" || displayColor === "Amber") && remGreen <= 0 && needG > 0) displayColor = "Green";
-                if (displayColor !== "Blue" && remBlue <= 0 && needB > 0) displayColor = "Blue";
-            }
-
             let topBorder = scColorMap[displayColor] || "#95a5a6";
             
             gridHtml += `<div class="kpi-badge" style="border-top-color: ${topBorder}">
                 <span class="kpi-name">${kpi.name}</span>`;
             
-            // Render the specific remaining amounts based on current color status
             if (displayColor === "Blue") {
                 gridHtml += `<div class="kpi-blue-win">Keep going to keep this blue! 🟦</div>`;
             } else if (isTrackOnly) {
@@ -528,7 +545,6 @@
         document.getElementById('sc-kpi-grid').innerHTML = gridHtml;
     }
 
-    // Polling heartbeat
     setInterval(fetchScorecard, 60000); 
     setTimeout(fetchScorecard, 1000); 
     // --- END SCORECARD ENGINE ---
@@ -540,7 +556,6 @@
     }
 
     function simulateNextDay() {
-        let simulatedDateOffset = parseInt(localStorage.getItem('eeRhylSimOffset')) || 0;
         simulatedDateOffset += 1;
         localStorage.setItem('eeRhylSimOffset', simulatedDateOffset);
         isDevMode = false;
