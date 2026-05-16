@@ -28,47 +28,63 @@
         .score-overall { font-size: 4em; font-weight: 900; line-height: 1; margin: 10px 0; color: #333; }
         .score-overall.color-red { color: #e74c3c; } .score-overall.color-amber { color: #f39c12; } .score-overall.color-green { color: #27ae60; } .score-overall.color-blue { color: #3498db; }
         
-        /* SCORE TRACKER BADGES - FIXED CSS FOR PERFECT HORIZONTAL SCROLL */
+        /* SCORE TRACKER BADGES - FIXED CSS TO PREVENT SPILLING */
         .score-track-wrapper { 
-            width: calc(100% + 40px); /* Bleeds perfectly to the edges of the padding */
-            margin: 25px -20px 10px -20px; 
-            padding: 5px 20px; 
+            width: 100%;
+            margin: 20px 0 10px 0; 
+            padding: 15px 2px 10px 2px; /* Top padding ensures red arrow isn't cut off */
             overflow-x: auto; 
             -webkit-overflow-scrolling: touch; 
             -ms-overflow-style: none; /* IE and Edge */
             scrollbar-width: none; /* Firefox */
+            box-sizing: border-box;
         }
         .score-track-wrapper::-webkit-scrollbar { display: none; } /* Chrome, Safari */
         
         #score-track-container { 
-            display: inline-flex; 
+            display: flex; 
             flex-wrap: nowrap; 
-            justify-content: flex-start; /* Prevents the left-side cutoff bug */
-            gap: 6px; 
+            justify-content: flex-start;
+            align-items: center;
+            gap: 4px; 
             min-width: max-content; 
         }
         
         .track-node { 
             background-color: #bdc3c7; 
             color: white; 
-            padding: 6px 12px; 
-            border-radius: 6px; 
-            font-size: 0.9em; 
+            padding: 6px 10px; 
+            border-radius: 4px; 
+            font-size: 0.85em; 
             font-weight: bold; 
             transition: all 0.3s ease; 
-            opacity: 0.4; 
-            flex-shrink: 0; /* Prevents boxes from squishing on small screens */
+            opacity: 0.5; 
+            flex-shrink: 0; /* Keeps them on one row without squishing text */
+            position: relative;
         }
         .track-node.amber { background-color: #f39c12; }
         .track-node.green { background-color: #27ae60; }
         .track-node.blue { background-color: #3498db; }
+        
         .track-node.active { 
             opacity: 1; 
             transform: scale(1.15); 
             z-index: 10; 
             border: 2px solid #333; 
             box-shadow: 0 4px 8px rgba(0,0,0,0.3); 
-            margin: 0 5px;
+            margin: 0 6px;
+        }
+
+        /* RED ARROW POINTING AT ACTIVE NUMBER */
+        .track-node.active::before {
+            content: '';
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            margin-left: -7px;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 10px solid #e74c3c;
         }
 
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
@@ -204,7 +220,11 @@
             .kpi-grid { grid-template-columns: repeat(3, 1fr); }
             .kpi-name { font-size: 0.7em; }
             .score-overall { font-size: 3em; }
-            .track-node { font-size: 0.85em; padding: 6px 10px; }
+            
+            /* Tighter Track Padding on Mobile to fit all items */
+            .score-track-wrapper { padding-top: 15px; }
+            .track-node { font-size: 0.7em; padding: 5px 6px; }
+            #score-track-container { gap: 3px; }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
