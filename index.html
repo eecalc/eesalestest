@@ -22,7 +22,7 @@
         h1 { color: #005c63; text-align: center; margin-bottom: 5px; font-size: 1.8em; }
         h2 { color: #009aa6; margin-bottom: 10px; margin-top: 30px; border-bottom: 2px solid #b2e0e3; padding-bottom: 5px; font-size: 1.3em; }
 
-        /* LIVE SCORECARD UI (LIGHT THEME) */
+        /* LIVE SCORECARD UI */
         .scorecard-container { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 2px solid #b2e0e3; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 100%; box-sizing: border-box; }
         .scorecard-header { text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #b2e0e3; padding-bottom: 15px; width: 100%; box-sizing: border-box; }
         .score-overall { font-size: 4em; font-weight: 900; line-height: 1; margin: 10px 0; color: #333; }
@@ -215,7 +215,7 @@
 </head>
 <body>
 
-<div class="version-tag">v3.2.0</div>
+<div class="version-tag">v3.2.1</div>
 
 <div class="modal-overlay" id="devPasswordModal">
     <div class="modal-content" style="max-width: 350px; text-align: center; border-top: 6px solid #e74c3c;">
@@ -243,10 +243,10 @@
     <div class="modal-content">
         <h3>🚀 Release Notes</h3>
         <div class="version-block">
-            <h4>v3.2.0 - Automated TV Update</h4>
+            <h4>v3.2.1 - Automated TV Update</h4>
             <p style="color: #555; font-size: 0.9em; margin-top: -5px;">Update by Reece:</p>
             <ul>
-                <li><strong>Automated TV Target:</strong> The TV target is now fully locked. It will automatically update to exactly 25% of your combined total achieved New HBB + Regrade sales!</li>
+                <li><strong>Automated TV Target:</strong> The TV target is now fully locked. It will automatically update to exactly 25% of your combined total achieved New HBB + Regrade sales, rounded to the nearest whole number!</li>
                 <li><strong>Live Number Track:</strong> Added a scrolling progress track beneath the Overall Score. It maps every score tier, and automatically highlights exactly where you are sitting on the line!</li>
                 <li><strong>Scorecard Upgrade Animation:</strong> The app now remembers your store's score. If your Overall Score bumps up to the next tier (e.g. Amber to Green), you'll trigger a massive confetti explosion across the screen!</li>
             </ul>
@@ -270,7 +270,6 @@
 
     <h1>EE Rhyl Target Calculator</h1>
 
-    <!-- 🟢 LIVE SCORECARD DASHBOARD -->
     <div class="scorecard-container">
         <div class="scorecard-header">
             <span style="font-size:0.9em; letter-spacing:2px; text-transform:uppercase; color:#005c63; font-weight:bold;">Live Store Scorecard</span>
@@ -284,11 +283,9 @@
                 </div>
             </div>
             
-            <!-- 🔢 THE LIVE NUMBER TRACKER (HORIZONTAL SCROLL) -->
             <div class="score-track-wrapper">
                 <div id="score-track-container">
-                    <!-- JavaScript populates the numbers here -->
-                </div>
+                    </div>
             </div>
 
             <div style="font-size:0.85em; color:#7f8c8d; font-weight:bold; margin-top: 15px;" id="sc-last-sync">Syncing...</div>
@@ -401,7 +398,7 @@
     <div class="credits">Designed for EE Rhyl by Reece Farrelly</div>
 </div>
 <script>
-    const APP_VERSION = "3.2.0";
+    const APP_VERSION = "3.2.1";
 
     // ⚠️ CRITICAL: YOU MUST PASTE YOUR NEW GOOGLE SCRIPT URL HERE! ⚠️
     const SCORECARD_URL = "YOUR_NEW_WEB_APP_URL_HERE";
@@ -565,7 +562,7 @@
     }
 
     // Polling heartbeat
-    setInterval(fetchScorecard, 300000); // Set to 5 minutes as requested previously
+    setInterval(fetchScorecard, 300000); // 5 minutes
     setTimeout(fetchScorecard, 1000); 
     // --- END SCORECARD ENGINE ---
 
@@ -843,13 +840,25 @@
         if (f === 'achieved' && aInput) { aInput.value = categories[i][f]; } 
         else if (f === 'target' && tInput) { tInput.value = categories[i][f]; }
         
-        // No scorecard updates are sent here as requested!
-        
         updateData(i, f, categories[i][f]); 
     }
     
     function updateData(i, f, v) { 
         categories[i][f] = parseFloat(v) || 0; 
+        
+        // --- NEW TV ATTACHMENT LOGIC ---
+        let tvIdx = categories.findIndex(c => c.name === "TV");
+        let newHbbIdx = categories.findIndex(c => c.name === "NEW HBB");
+        let regHbbIdx = categories.findIndex(c => c.name === "REG HBB");
+        if (tvIdx !== -1 && newHbbIdx !== -1 && regHbbIdx !== -1) {
+            // ROUNDING LOGIC INCLUDED HERE
+            let calculatedTvTarget = Math.round((categories[newHbbIdx].achieved + categories[regHbbIdx].achieved) * 0.25);
+            categories[tvIdx].target = calculatedTvTarget;
+            let tvSpan = document.getElementById(`target-span-${tvIdx}`);
+            if (tvSpan) tvSpan.innerText = calculatedTvTarget;
+        }
+        // --------------------------------
+
         localStorage.setItem('eeRhylTargets', JSON.stringify(categories)); 
         calculate(); 
     }
@@ -986,19 +995,6 @@
              if(tMinus) tMinus.style.display = isTargetsLocked ? 'none' : 'inline-block';
              if(tPlus) tPlus.style.display = isTargetsLocked ? 'none' : 'inline-block';
         }
-
-        // --- NEW TV ATTACHMENT LOGIC ---
-        let tvIdx = categories.findIndex(c => c.name === "TV");
-        let newHbbIdx = categories.findIndex(c => c.name === "NEW HBB");
-        let regHbbIdx = categories.findIndex(c => c.name === "REG HBB");
-        if (tvIdx !== -1 && newHbbIdx !== -1 && regHbbIdx !== -1) {
-            let calculatedTvTarget = (categories[newHbbIdx].achieved + categories[regHbbIdx].achieved) * 0.25;
-            categories[tvIdx].target = calculatedTvTarget;
-            let tvSpan = document.getElementById(`target-span-${tvIdx}`);
-            if (tvSpan) tvSpan.innerText = calculatedTvTarget.toFixed(2);
-            localStorage.setItem('eeRhylTargets', JSON.stringify(categories));
-        }
-        // --------------------------------
 
         let totalKPI = 0;
         let active = [];
@@ -1813,7 +1809,7 @@
             let targetHtml = '';
             if (isTV) {
                 targetHtml = `<div class="quick-tap-cell" style="justify-content: center;">
-                                <span id="target-span-${i}" style="font-size: 1.2em; font-weight: bold; color: #555; background: #eef2f5; padding: 4px 10px; border-radius: 6px; border: 1px solid #bdc3c7;">${cat.target.toFixed(2)}</span>
+                                <span id="target-span-${i}" style="font-size: 1.2em; font-weight: bold; color: #555; background: #eef2f5; padding: 4px 10px; border-radius: 6px; border: 1px solid #bdc3c7;">${Math.round(cat.target)}</span>
                               </div>`;
             } else {
                 targetHtml = `<div class="quick-tap-cell">
