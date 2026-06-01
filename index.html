@@ -12,7 +12,7 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #009aa6; color: #333; margin: 0; padding: 20px 10px; transition: background-color 0.5s ease; -webkit-tap-highlight-color: transparent; }
         
         /* HARDWARE ACCELERATION ON MAIN CONTAINER */
-        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 50, 50, 0.3); border-top: 8px solid #005c63; transition: border-top-color 0.5s ease; position: relative; transform: translateZ(0); -webkit-transform: translateZ(0); will-change: transform; }
+        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 50, 50, 0.3); border-top: 8px solid #005c63; transition: border-top-color 0.5s ease; position: relative; transform: translateZ(0); -webkit-transform: translateZ(0); will-change: transform; box-sizing: border-box; }
         
         .logo-container { text-align: center; margin-bottom: 20px; }
         
@@ -23,72 +23,60 @@
         h2 { color: #009aa6; margin-bottom: 10px; margin-top: 30px; border-bottom: 2px solid #b2e0e3; padding-bottom: 5px; font-size: 1.3em; }
 
         /* LIVE SCORECARD UI (LIGHT THEME) */
-        .scorecard-container { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 2px solid #b2e0e3; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .scorecard-header { text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #b2e0e3; padding-bottom: 15px; }
+        .scorecard-container { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 2px solid #b2e0e3; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 100%; box-sizing: border-box; }
+        .scorecard-header { text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #b2e0e3; padding-bottom: 15px; width: 100%; box-sizing: border-box; }
         .score-overall { font-size: 4em; font-weight: 900; line-height: 1; margin: 10px 0; color: #333; }
         .score-overall.color-red { color: #e74c3c; } .score-overall.color-amber { color: #f39c12; } .score-overall.color-green { color: #27ae60; } .score-overall.color-blue { color: #3498db; }
         
-        /* SCORE TRACKER BADGES - FIXED CSS TO PREVENT SPILLING */
+        /* STRICT SCORE TRACKER CSS - PREVENTS MOBILE SPILLOVER */
         .score-track-wrapper { 
-            width: 100%;
-            margin: 20px 0 10px 0; 
-            padding: 15px 2px 10px 2px; /* Top padding ensures red arrow isn't cut off */
+            width: 100%; 
+            max-width: 100%; 
             overflow-x: auto; 
             -webkit-overflow-scrolling: touch; 
-            -ms-overflow-style: none; /* IE and Edge */
-            scrollbar-width: none; /* Firefox */
+            margin: 20px 0 10px 0; 
+            padding: 10px 0;
             box-sizing: border-box;
         }
-        .score-track-wrapper::-webkit-scrollbar { display: none; } /* Chrome, Safari */
-        
+        /* Hide scrollbar for a cleaner look */
+        .score-track-wrapper::-webkit-scrollbar { display: none; }
+        .score-track-wrapper { -ms-overflow-style: none; scrollbar-width: none; }
+
         #score-track-container { 
             display: flex; 
             flex-wrap: nowrap; 
-            justify-content: flex-start;
+            justify-content: flex-start; 
             align-items: center;
-            gap: 4px; 
+            gap: 8px; 
             min-width: max-content; 
+            padding: 0 10px; 
         }
         
         .track-node { 
+            flex: 0 0 auto; 
             background-color: #bdc3c7; 
             color: white; 
-            padding: 6px 10px; 
-            border-radius: 4px; 
-            font-size: 0.85em; 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            font-size: 0.9em; 
             font-weight: bold; 
             transition: all 0.3s ease; 
-            opacity: 0.5; 
-            flex-shrink: 0; /* Keeps them on one row without squishing text */
-            position: relative;
+            opacity: 0.4; 
         }
         .track-node.amber { background-color: #f39c12; }
         .track-node.green { background-color: #27ae60; }
         .track-node.blue { background-color: #3498db; }
-        
         .track-node.active { 
             opacity: 1; 
             transform: scale(1.15); 
             z-index: 10; 
             border: 2px solid #333; 
             box-shadow: 0 4px 8px rgba(0,0,0,0.3); 
-            margin: 0 6px;
-        }
-
-        /* RED ARROW POINTING AT ACTIVE NUMBER */
-        .track-node.active::before {
-            content: '';
-            position: absolute;
-            top: -14px;
-            left: 50%;
-            margin-left: -7px;
-            border-left: 7px solid transparent;
-            border-right: 7px solid transparent;
-            border-top: 10px solid #e74c3c;
+            margin: 0 5px;
         }
 
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
-        .kpi-badge { background: #f2fafa; border-radius: 8px; padding: 12px 8px; text-align: center; border-top: 4px solid #7f8c8d; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: #333; }
+        .kpi-badge { background: #f2fafa; border-radius: 8px; padding: 12px 8px; text-align: center; border-top: 4px solid #7f8c8d; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: #333; box-sizing: border-box; }
         .kpi-name { font-weight: bold; font-size: 0.8em; color: #005c63; margin-bottom: 8px; display: block; letter-spacing: 0.5px; text-transform: uppercase; }
         .kpi-target { font-size: 0.75em; color: #555; line-height: 1.4; }
         .kpi-target span { font-size: 1.2em; font-weight: bold; }
@@ -97,7 +85,7 @@
         
         /* MODAL STYLING */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 9999; display: none; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; padding: 20px; box-sizing: border-box;}
-        .modal-content { background: white; padding: 30px; border-radius: 12px; max-width: 500px; width: 100%; box-shadow: 0 15px 30px rgba(0,0,0,0.5); border-top: 6px solid #f39c12; max-height: 80vh; overflow-y: auto; transform: translateZ(0); }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; max-width: 500px; width: 100%; box-shadow: 0 15px 30px rgba(0,0,0,0.5); border-top: 6px solid #f39c12; max-height: 80vh; overflow-y: auto; transform: translateZ(0); box-sizing: border-box; }
         .modal-content h3 { margin-top: 0; color: #005c63; font-size: 1.5em; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;}
         .version-block { margin-bottom: 20px; }
         .version-block h4 { margin: 0 0 10px 0; font-size: 1.2em; color: #005c63; }
@@ -220,18 +208,14 @@
             .kpi-grid { grid-template-columns: repeat(3, 1fr); }
             .kpi-name { font-size: 0.7em; }
             .score-overall { font-size: 3em; }
-            
-            /* Tighter Track Padding on Mobile to fit all items */
-            .score-track-wrapper { padding-top: 15px; }
-            .track-node { font-size: 0.7em; padding: 5px 6px; }
-            #score-track-container { gap: 3px; }
+            .track-node { font-size: 0.85em; padding: 6px 10px; }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
-<div class="version-tag">v1.6.18</div>
+<div class="version-tag">v3.2.0</div>
 
 <div class="modal-overlay" id="devPasswordModal">
     <div class="modal-content" style="max-width: 350px; text-align: center; border-top: 6px solid #e74c3c;">
@@ -259,14 +243,12 @@
     <div class="modal-content">
         <h3>🚀 Release Notes</h3>
         <div class="version-block">
-            <h4>v1.6.18 - The Progress Track Update</h4>
+            <h4>v3.2.0 - Automated TV Update</h4>
             <p style="color: #555; font-size: 0.9em; margin-top: -5px;">Update by Reece:</p>
             <ul>
-                <li><strong>Dynamic Number Track:</strong> Added a scrolling progress track beneath the Overall Score. It maps every score tier, and automatically highlights exactly where you are sitting on the line!</li>
+                <li><strong>Automated TV Target:</strong> The TV target is now fully locked. It will automatically update to exactly 25% of your combined total achieved New HBB + Regrade sales!</li>
+                <li><strong>Live Number Track:</strong> Added a scrolling progress track beneath the Overall Score. It maps every score tier, and automatically highlights exactly where you are sitting on the line!</li>
                 <li><strong>Scorecard Upgrade Animation:</strong> The app now remembers your store's score. If your Overall Score bumps up to the next tier (e.g. Amber to Green), you'll trigger a massive confetti explosion across the screen!</li>
-                <li><strong>Average Footfall Added:</strong> Pulls your latest store footfall straight from the Google Sheet and displays it next to the overall score.</li>
-                <li><strong>Math Subtraction Fixed:</strong> The app accurately takes the "Total Required" and subtracts the "Sold Today" to display exactly what is left.</li>
-                <li><strong>No Two-Way Updating:</strong> Your personal calculator buttons will no longer send updates to the sheet. The scorecard is strictly read-only for the shop floor!</li>
             </ul>
         </div>
         <button class="modal-btn" onclick="closeChangelog()">Amazing, thanks!</button>
@@ -288,6 +270,7 @@
 
     <h1>EE Rhyl Target Calculator</h1>
 
+    <!-- 🟢 LIVE SCORECARD DASHBOARD -->
     <div class="scorecard-container">
         <div class="scorecard-header">
             <span style="font-size:0.9em; letter-spacing:2px; text-transform:uppercase; color:#005c63; font-weight:bold;">Live Store Scorecard</span>
@@ -301,16 +284,18 @@
                 </div>
             </div>
             
+            <!-- 🔢 THE LIVE NUMBER TRACKER (HORIZONTAL SCROLL) -->
             <div class="score-track-wrapper">
                 <div id="score-track-container">
-                    </div>
+                    <!-- JavaScript populates the numbers here -->
+                </div>
             </div>
 
             <div style="font-size:0.85em; color:#7f8c8d; font-weight:bold; margin-top: 15px;" id="sc-last-sync">Syncing...</div>
         </div>
         <div class="kpi-grid" id="sc-kpi-grid">
             <div style="grid-column: 1 / -1; text-align:center; padding: 20px; color:#7f8c8d;">
-                Connecting to Reece's Scorecard Engine
+                Connecting to HQ Scorecard Matrix...
             </div>
         </div>
         <div style="margin-top: 20px; padding: 15px; background-color: #f2fafa; border: 1px solid #b2e0e3; border-radius: 8px; font-size: 0.85em; color: #005c63; line-height: 1.5; text-align: center;">
@@ -324,7 +309,7 @@
 
     <div class="results-container">
         <div class="result-box" style="flex: 1;">
-            <div class="result-label">PERSONAL OVERALL %</div>
+            <div class="result-label">PERSONAL COMMISSION %</div>
             <div class="result-value" id="currentOverall">0.00%</div>
         </div>
     </div>
@@ -416,10 +401,10 @@
     <div class="credits">Designed for EE Rhyl by Reece Farrelly</div>
 </div>
 <script>
-    const APP_VERSION = "1.6.18";
+    const APP_VERSION = "3.2.0";
 
-    // ⚠️ YOUR EXACT SCORECARD URL IS RESTORED HERE!
-    const SCORECARD_URL = "https://script.google.com/macros/s/AKfycbzrvHOKq0EX-xVQq6IQ-DjiCuFs3Hv2Z1X5cAZjhYEZjJjxMoWR_qqWT2jq2JDKamcQdQ/exec";
+    // ⚠️ CRITICAL: YOU MUST PASTE YOUR NEW GOOGLE SCRIPT URL HERE! ⚠️
+    const SCORECARD_URL = "YOUR_NEW_WEB_APP_URL_HERE";
 
     const defaultCategories = [
         { name: "NEW HANDSETS", target: 0, achieved: 0 },
@@ -456,7 +441,7 @@
     ];
 
     function fetchScorecard() {
-        if (!SCORECARD_URL) return;
+        if (!SCORECARD_URL || SCORECARD_URL === "YOUR_NEW_WEB_APP_URL_HERE") return;
         let oldScript = document.getElementById('scorecard-jsonp');
         if (oldScript) oldScript.remove();
         let script = document.createElement('script');
@@ -580,7 +565,7 @@
     }
 
     // Polling heartbeat
-    setInterval(fetchScorecard, 60000); 
+    setInterval(fetchScorecard, 300000); // Set to 5 minutes as requested previously
     setTimeout(fetchScorecard, 1000); 
     // --- END SCORECARD ENGINE ---
 
@@ -591,6 +576,7 @@
     }
 
     function simulateNextDay() {
+        let simulatedDateOffset = parseInt(localStorage.getItem('eeRhylSimOffset')) || 0;
         simulatedDateOffset += 1;
         localStorage.setItem('eeRhylSimOffset', simulatedDateOffset);
         isDevMode = false;
@@ -1000,6 +986,19 @@
              if(tMinus) tMinus.style.display = isTargetsLocked ? 'none' : 'inline-block';
              if(tPlus) tPlus.style.display = isTargetsLocked ? 'none' : 'inline-block';
         }
+
+        // --- NEW TV ATTACHMENT LOGIC ---
+        let tvIdx = categories.findIndex(c => c.name === "TV");
+        let newHbbIdx = categories.findIndex(c => c.name === "NEW HBB");
+        let regHbbIdx = categories.findIndex(c => c.name === "REG HBB");
+        if (tvIdx !== -1 && newHbbIdx !== -1 && regHbbIdx !== -1) {
+            let calculatedTvTarget = (categories[newHbbIdx].achieved + categories[regHbbIdx].achieved) * 0.25;
+            categories[tvIdx].target = calculatedTvTarget;
+            let tvSpan = document.getElementById(`target-span-${tvIdx}`);
+            if (tvSpan) tvSpan.innerText = calculatedTvTarget.toFixed(2);
+            localStorage.setItem('eeRhylTargets', JSON.stringify(categories));
+        }
+        // --------------------------------
 
         let totalKPI = 0;
         let active = [];
@@ -1809,14 +1808,25 @@
             let color = getKPIColor(p);
             let barWidth = Math.min(p, 100); 
             
-            cBody.innerHTML += `<tr>
-                <td><strong>${cat.name}</strong></td>
-                <td>
-                    <div class="quick-tap-cell">
+            let isTV = (cat.name === "TV");
+            
+            let targetHtml = '';
+            if (isTV) {
+                targetHtml = `<div class="quick-tap-cell" style="justify-content: center;">
+                                <span id="target-span-${i}" style="font-size: 1.2em; font-weight: bold; color: #555; background: #eef2f5; padding: 4px 10px; border-radius: 6px; border: 1px solid #bdc3c7;">${cat.target.toFixed(2)}</span>
+                              </div>`;
+            } else {
+                targetHtml = `<div class="quick-tap-cell">
                         <button class="quick-add-btn" id="target-minus-${i}" onclick="quickAdjust(${i},'target',-1)">-</button>
                         <input type="number" inputmode="numeric" pattern="[0-9]*" id="target-in-${i}" value="${cat.target}" onfocus="if(this.value==='0') this.value='';" onblur="if(this.value==='') { this.value='0'; updateData(${i},'target','0'); }" oninput="updateData(${i},'target',this.value)">
                         <button class="quick-add-btn" id="target-plus-${i}" onclick="quickAdjust(${i},'target',1)">+</button>
-                    </div>
+                    </div>`;
+            }
+
+            cBody.innerHTML += `<tr>
+                <td><strong>${cat.name}</strong></td>
+                <td>
+                    ${targetHtml}
                 </td>
                 <td id="daily-rr-${i}" style="text-align: center; font-weight: bold; color: #d35400; font-size: 1.1em;">-</td>
                 <td>
